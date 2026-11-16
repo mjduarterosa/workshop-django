@@ -18,7 +18,7 @@ Choose **one** of the two options below. GitHub Codespaces is the quickest becau
 No installation is needed. Python, Django and the VS Code extensions are set up for you.
 
 1. Sign in to your GitHub account.
-2. Open the workshop repository: `https://github.com/<your-instructor>/<repo-name>`
+2. Open the workshop repository: `https://github.com/mjduarterosa/workshop-django`
 3. Click the green **Code** button, open the **Codespaces** tab, then click **Create codespace on main**.
 4. Wait about a minute while the environment builds. VS Code opens in your browser.
 5. Open the terminal in VS Code (**Terminal → New Terminal**) and check that Django is installed:
