@@ -333,7 +333,61 @@ Refresh the browser with a **hard refresh** (`Ctrl+Shift+R`, or `Cmd+Shift+R` on
 
 Now change the nav colour in `style.css` (for example `#2c3e50` to `#8e44ad`) and refresh. You edit one file and the whole site changes.
 
-### 7. Static files in production (ignore)
+### 7. Bonus: Using Bootstrap 
+
+Bootstrap is a popular CSS and JavaScript toolkit with ready-made navigation bars, cards, buttons and a responsive grid. You do not need to install anything. Load it from a CDN (a public server) with two lines in base.html. This needs an internet connection.
+
+1. Load Bootstrap in `base.html`.
+
+Add the CSS inside `<head>`, before your own style.css so your rules can override it:
+
+html
+```
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'members/css/style.css' %}">
+```
+
+Add the JavaScript just before {% block scripts %}:
+
+html
+```
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {% block scripts %}{% endblock %}
+```
+
+Check getbootstrap.com for the latest version number if you want to update 5.3.3.
+
+2. Use Bootstrap classes
+
+Bootstrap works by adding classes to your HTML. Replace the `<nav>` and `<main>` parts of base.html:
+
+html
+```
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'members:home' %}">
+        <img src="{% static 'members/images/logo.svg' %}" alt="" width="28" height="28">
+        Book Club
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="main-nav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="{% url 'members:list' %}">Members</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'members:about' %}">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'members:add' %}">Add member</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-4">
+    {% block content %}{% endblock %}
+  </main>
+```
+
+### 8. Static files in production (ignore)
 
 The development server only serves static files while `DEBUG = True`. A real site collects them into one folder that a web server serves.
 
