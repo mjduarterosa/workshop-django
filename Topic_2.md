@@ -267,57 +267,46 @@ In `members/models.py` add the following code to the Member class:
 ```
 Use the shell to add more data. Now run the server and check the new layout and urls.
 
-### 4. Redirects and errors
+### 4. Redirects and 404 error
 
-Update the imports at the top of `members/views.py`:
+Now let's deal with a case of a member id not in the list. First create new template:
 
-```python
-from django.http import Http404, HttpResponse, JsonResponse
+```html
+{% extends "members/base.html" %}
+
+{% block title %}Member not found{% endblock %}
+
+{% block content %}
+  <h1>Member not found</h1>
+  <p>Sorry, there is no member with ID {{ member_id }}.</p>
+  <p><a href="{% url 'members:list' %}">Back to the member list</a></p>
+{% endblock %}
 ```
 
-Add a view that redirects to the most recent member:
+Change member_detail view:
 
 ```python
-def latest_member(request):
-    member = Member.objects.order_by("-joined").first()
-    if member is None:
-        raise Http404("No members yet")
-    return redirect("members:detail", member_id=member.id)
+def member_detail(request, member_id):
+    try:
+        member = Member.objects.get(pk=member_id)
+    except Member.DoesNotExist:
+        return render(
+            request,
+            "members/member_not_found.html",
+            {"member_id": member_id},
+            status=404,
+        )
+    return render(request, "members/member_detail.html", {"member": member})
 ```
-
-Add the route:
-
-```python
-    path("members/latest/", views.latest_member, name="latest"),
-```
-
-### 5. Restricting HTTP methods
-
-Add the decorator import at the top of `members/views.py`:
-
-```python
-from django.views.decorators.http import require_GET
-```
-
-Decorate the JSON view so it only accepts GET requests:
-
-```python
-@require_GET
-def member_list_json(request):
-    members = list(Member.objects.values("id", "name", "favorite_book"))
-    return JsonResponse({"members": members})
-```
-
-Other methods now receive a `405 Method Not Allowed` response.
+Re-run server.
 
 ### Test it
 
 | Open this URL | You should see |
 |---|---|
-| `<site>/members/` | A list of four members with links |
-| `<site>/members/2/` | Bob Smith's detail page |
-| `<site>/members/999/` | A 404 page |
-| `<site>/members/latest/` | A redirect to David Lee's detail page |
+| `/members/` | A list of members with links |
+| `/members/2/` | Member's detail page |
+| `/members/999/` | Member not found. |
 
 ### Checkpoint
 

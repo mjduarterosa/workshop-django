@@ -1,0 +1,9 @@
+{% extends "members/base.html" %}
+
+{% block title %}Page not found{% endblock %}
+
+{% block content %}
+  <h1>Page not found</h1>
+  <p>Sorry, we couldn't find that page.</p>
+  <p><a href="{% url 'members:home' %}">Go back home</a></p>
+{% endblock %}

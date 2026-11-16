@@ -31,5 +31,13 @@ def member_list(request):
 
 
 def member_detail(request, member_id):
-    member = get_object_or_404(Member, pk=member_id)
+    try:
+        member = Member.objects.get(pk=member_id)
+    except Member.DoesNotExist:
+        return render(
+            request,
+            "members/member_not_found.html",
+            {"member_id": member_id},
+            status=404,
+        )
     return render(request, "members/member_detail.html", {"member": member})
