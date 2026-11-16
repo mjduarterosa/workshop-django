@@ -524,15 +524,3 @@ Both are normal Django. Use generic views for standard tasks and function views 
 Add an `UpdateView` that lets you edit a member and a `DeleteView` that removes one.
 
 ---
-
-## Troubleshooting
-
-| Problem | Fix |
-|---|---|
-| `NoReverseMatch` error | The name in `{% url %}` or `reverse()` does not exist. Check `app_name` and the route's `name` |
-| `TemplateDoesNotExist` | Check the path is `members/templates/members/<file>.html` and that `"members"` is in `INSTALLED_APPS` |
-| `no such table: members_member` | Run `python manage.py makemigrations members` and then `python manage.py migrate` |
-| `got an unexpected keyword argument 'member_id'` | The view's argument name must match the name in the route. Generic views expect `pk` |
-| 404 on a route you just added | Check the route is in `members/urls.py` and appears before any general pattern |Use `fields`, `template_name` and
-| `DisallowedHost` (Codespaces) | Add the settings block from Setup step 2 and restart the server |
-| `CSRF verification failed` on a form (Codespaces) | The `CSRF_TRUSTED_ORIGINS` block is missing, or the template has no `{% csrf_token %}` |
