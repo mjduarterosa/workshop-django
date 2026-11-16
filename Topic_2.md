@@ -457,6 +457,10 @@ You can now delete `member_list` and `member_detail` from `members/views.py`, si
 
 Check `/members/` and `/members/1/`.
 
+### Exercise
+
+Catch error when member does not exist inside the ModelDetailView class as we did in the function version. When member does not exist we should see the `member_not_found.url`.
+
 ### 2. TemplateView for static pages
 
 Add to the import in `members/views.py`:

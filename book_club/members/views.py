@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from .models import Member
 from django.views.generic import DetailView, ListView, TemplateView
 
@@ -15,6 +15,16 @@ class MemberDetailView(DetailView):
     template_name = "members/member_detail.html"
     context_object_name = "member"
 
+    def get(self, request, *args, **kwargs):
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            return render(
+                request,
+                "members/member_not_found.html",
+                {"member_id": kwargs["pk"]},
+                status=404,
+            )
 
 class AboutView(TemplateView):
     template_name = "members/about.html"
