@@ -1,17 +1,27 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  {% block extra_head %}{% endblock %}
 <head>
   <meta charset="utf-8">
-  <title>{% block title %}Book Club{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Home{% endblock %} | Book Club</title>
+  <link rel="stylesheet" href="{% static 'members/css/style.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
   <nav>
-    <a href="{% url 'members:home' %}">Home</a> |
+    <a href="{% url 'members:home' %}" class="brand">
+      <img src="{% static 'members/images/logo.svg' %}" alt="" class="logo">
+      Book Club
+    </a>
     <a href="{% url 'members:list' %}">Members</a>
+    <a href="{% url 'members:about' %}">About</a>
   </nav>
-  <hr>
-  {% block content %}{% endblock %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
   <footer>
     <hr>
     <p>&copy; {% now "Y" %} Book Club</p>

@@ -309,7 +309,6 @@ Replace the whole contents of `members/templates/members/base.html`. The inline 
     </a>
     <a href="{% url 'members:list' %}">Members</a>
     <a href="{% url 'members:about' %}">About</a>
-    <a href="{% url 'members:add' %}">Add member</a>
   </nav>
 
   <main>
@@ -318,40 +317,12 @@ Replace the whole contents of `members/templates/members/base.html`. The inline 
 
   <footer>
     <hr>
-    <p>&copy; {% now "Y" %} Book Club Workshop</p>
+    <p>&copy; {% now "Y" %} Book Club</p>
   </footer>
 
   {% block scripts %}{% endblock %}
 </body>
 </html>
-```
-
-Replace the whole contents of `members/templates/members/member_list.html`. It adds a search box and loads the JavaScript for this page only:
-
-```html
-{% extends "members/base.html" %}
-{% load static %}
-
-{% block title %}Members{% endblock %}
-
-{% block content %}
-  <h1>Book Club Members</h1>
-  <p class="muted">{{ members|length }} member{{ members|length|pluralize }}</p>
-
-  <input type="search" id="member-search" placeholder="Search members...">
-
-  <div id="member-list">
-    {% for member in members %}
-      {% include "members/_member_card.html" %}
-    {% empty %}
-      <p>No members yet.</p>
-    {% endfor %}
-  </div>
-{% endblock %}
-
-{% block scripts %}
-  <script src="{% static 'members/js/search.js' %}"></script>
-{% endblock %}
 ```
 
 **Important:** `{% load static %}` is **not inherited**. Every template that uses `{% static %}` needs its own `{% load static %}`. In a child template, put it right after `{% extends %}`.
@@ -360,17 +331,9 @@ Replace the whole contents of `members/templates/members/member_list.html`. It a
 
 Refresh the browser with a **hard refresh** (`Ctrl+Shift+R`, or `Cmd+Shift+R` on a Mac), because browsers cache CSS files.
 
-| Check | You should see |
-|---|---|
-| Any page | A dark navigation bar with a book logo and styled cards |
-| `<site>/members/` | A search box. Type `al` and only Alice stays visible |
-| `<site>/static/members/css/style.css` | The raw CSS text |
-
-You can open any static file directly using `STATIC_URL` plus the file path. This is the quickest way to debug a missing file.
-
 Now change the nav colour in `style.css` (for example `#2c3e50` to `#8e44ad`) and refresh. You edit one file and the whole site changes.
 
-### 7. Static files in production
+### 7. Static files in production (ignore)
 
 The development server only serves static files while `DEBUG = True`. A real site collects them into one folder that a web server serves.
 
@@ -392,7 +355,6 @@ This copies every static file into `staticfiles/`. That folder is already ignore
 
 - [ ] The site has the new styling on every page
 - [ ] The logo appears in the navigation bar
-- [ ] The search box filters the member list
 - [ ] You can open `/static/members/css/style.css` directly in the browser
 
 ### Exercise
@@ -404,18 +366,3 @@ Add a favicon: create a small SVG at `members/static/members/images/favicon.svg`
 ```
 
 ---
-
-## Troubleshooting
-
-| Problem | Fix |
-|---|---|
-| `Invalid block tag 'static'. Did you forget to register or load this tag?` | Add `{% load static %}` to that template (after `{% extends %}`) |
-| `'extends' tag must be the first tag in the template` | Move `{% extends %}` to the top. Only `{# comments #}` may come before it |
-| `TemplateDoesNotExist` | Check the path `members/templates/members/<file>.html` and that `"members"` is in `INSTALLED_APPS` |
-| A variable prints nothing | The name in the template does not match the key in the context dictionary. Check spelling |
-| `NoReverseMatch` | The route name in `{% url %}` does not exist. Check `app_name` and the route's `name` |
-| Styling does not appear | Hard refresh the page. Check the file path and that the folder is named `static` |
-| `404` for `/static/...` | Check `members/static/members/css/style.css` exists exactly as written, and that `DEBUG = True` |
-| JavaScript does nothing | Open the browser console (`F12`) for errors, and check the element IDs match (`member-search`, `member-list`) |
-| New static file not found | Restart `runserver` once if the `static` folder was created after the server started |
-| `DisallowedHost` (Codespaces) | Add the settings block from the Part II setup and restart the server |
