@@ -265,7 +265,7 @@ In `members/models.py` add the following code to the Member class:
     phone = models.IntegerField(null=True)
     joined_date = models.DateField(null=True)
 ```
-Now run the server and check the new layout and urls.
+Use the shell to add more data. Now run the server and check the new layout and urls.
 
 ### 4. Redirects and errors
 
