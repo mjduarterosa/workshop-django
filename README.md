@@ -97,37 +97,42 @@ You are ready to continue when `python -m django --version` prints a version num
 
 ### 1. Create the project
 
-Run this in the terminal, from the root of your workspace. The trailing `.` is important: it creates the project in the current folder instead of an extra nested one.
+Run this in the terminal, from the root of your workspace (add a trailing `.` if you don't want to create the top project folder, only the content).
 
 ```bash
-django-admin startproject mysite .
+django-admin startproject book_club
 ```
 
 This creates:
 
 ```
-.
+book_club/
 ├── manage.py
-└── mysite/
+└── book_club/
     ├── __init__.py
     ├── asgi.py
     ├── settings.py
     ├── urls.py
     └── wsgi.py
 ```
+Now:
+```
+cd book_club
+```
+Inside you will find:
 
 | File | Purpose |
 |---|---|
 | `manage.py` | Command-line tool for running and managing your project |
-| `mysite/settings.py` | Project configuration |
-| `mysite/urls.py` | Top-level URL routing |
-| `mysite/wsgi.py`, `asgi.py` | Entry points for web servers |
+| `book_club/settings.py` | Project configuration |
+| `book_club/urls.py` | Top-level URL routing |
+| `book_club/wsgi.py`, `asgi.py` | Entry points for web servers |
 
 ### 2. Allow Codespaces URLs (Codespaces only)
 
 Skip this step if you are working locally.
 
-Open `mysite/settings.py`. Add `import os` at the top of the file, then replace the line `ALLOWED_HOSTS = []` with this block:
+Open `book_club/settings.py`. Add `import os` at the top of the file, then replace the line `ALLOWED_HOSTS = []` with this block:
 
 ```python
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
@@ -141,15 +146,7 @@ if os.environ.get("CODESPACES") == "true":
 
 Without this, the browser shows a `DisallowedHost` error.
 
-### 3. Apply the initial migrations
-
-```bash
-python manage.py migrate
-```
-
-This creates the default SQLite database (`db.sqlite3`) and Django's built-in tables.
-
-### 4. Run the development server
+### 3. Run the development server
 
 **Codespaces:**
 
@@ -174,13 +171,13 @@ You should see Django's "The install worked successfully! Congratulations!" page
 A Django *project* is made up of one or more *apps*. Each app does one job.
 
 ```bash
-python manage.py startapp pages
+python manage.py startapp members
 ```
 
 This creates:
 
 ```
-pages/
+members/
 ├── __init__.py
 ├── admin.py
 ├── apps.py
@@ -193,7 +190,7 @@ pages/
 
 ### 6. Register the app
 
-In `mysite/settings.py`, add `"pages"` to `INSTALLED_APPS`:
+In `book_club/settings.py`, add `"members"` to `INSTALLED_APPS`:
 
 ```python
 INSTALLED_APPS = [
@@ -203,37 +200,36 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "pages",  # <-- add this line
+    "members",  # <-- add this line
 ]
 ```
 
 ### 7. Write your first view
 
-Edit `pages/views.py`:
+Edit `members/views.py`:
 
 ```python
 from django.http import HttpResponse
 
 
-def home(request):
-    return HttpResponse("Hello, Django!")
+def members(request):
+    return HttpResponse("Hello World!")
 ```
 
 ### 8. Add a URL for the view
 
-Create a new file `pages/urls.py`:
+Create a new file `members/urls.py`:
 
 ```python
 from django.urls import path
-
 from . import views
 
 urlpatterns = [
-    path("", views.home, name="home"),
+    path("members/", views.members, name="members"),
 ]
 ```
 
-Then connect it to the project in `mysite/urls.py`:
+Then connect it to the project in `book_club/urls.py`:
 
 ```python
 from django.contrib import admin
@@ -241,16 +237,16 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("pages.urls")),
+    path("", include("members.urls")),
 ]
 ```
 
 ### 9. Test it
 
-Start the server again (use the command for your setup from step 4) and refresh the browser. You should see:
+Start the server again (use the command for your setup from step 3) and refresh the browser. You should see:
 
 ```
-Hello, Django!
+Hello World!
 ```
 
 ### Checkpoint
@@ -259,7 +255,7 @@ You have completed this section when:
 
 - [ ] `python -m django --version` prints a version number
 - [ ] The development server starts without errors
-- [ ] Your browser displays "Hello, Django!"
+- [ ] Your browser displays "Hello World!"
 
 ### Troubleshooting
 
@@ -268,6 +264,6 @@ You have completed this section when:
 | `DisallowedHost` error (Codespaces) | Add the settings block from step 2 and restart the server |
 | Port 8000 missing from the Ports tab | Start the server with `0.0.0.0:8000` |
 | `django-admin: command not found` (local) | Activate your virtual environment, then check Django is installed with `pip list` |
-| `ModuleNotFoundError: No module named 'pages'` | Check that you ran `startapp` from the folder containing `manage.py` |
-| `Page not found (404)` | Check that `pages/urls.py` exists and that `mysite/urls.py` includes it |
+| `ModuleNotFoundError: No module named 'members'` | Check that you ran `startapp` from the folder containing `manage.py` |
+| `Page not found (404)` | Check that `members/urls.py` exists and that `book_club/urls.py` includes it |
 | `Error: That port is already in use` | Stop the other server with `Ctrl+C`, or use another port: `python manage.py runserver 8001` |
