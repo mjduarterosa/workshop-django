@@ -1,11 +1,11 @@
 # II. URL Routing and Views (2 hours)
 
 | Section | Topic |
-|---|---|---|
-| A | Understanding URL routing in Django 
-| B | Creating views to handle HTTP requests 
-| C | Working with URL patterns and regular expressions 
-| D | Using generic views for common tasks
+|---|---|
+| A | Understanding URL routing in Django |
+| B | Creating views to handle HTTP requests |
+| C | Working with URL patterns and regular expressions |
+| D | Using generic views for common tasks |
 
 In this part we build a small **Book Club** site. The project is called `book_club` and the app is called `members`.
 
