@@ -183,8 +183,6 @@ members/
 │   └── members/
 │       ├── css/
 │       │   └── style.css
-│       ├── js/
-│       │   └── search.js
 │       └── images/
 │           └── logo.svg
 └── templates/
@@ -287,27 +285,6 @@ Create `members/static/members/images/logo.svg` (an SVG is a text file, so you c
 ```
 
 To use your own picture later (for example a `.png` or `.jpg`), save it in the `images` folder and reference it the same way.
-
-### 4. JavaScript
-
-Create `members/static/members/js/search.js`. It filters the member cards as you type:
-
-```javascript
-document.addEventListener("DOMContentLoaded", function () {
-  const search = document.getElementById("member-search");
-  if (!search) return;
-
-  const cards = document.querySelectorAll("#member-list .card");
-
-  search.addEventListener("input", function () {
-    const term = search.value.toLowerCase();
-    cards.forEach(function (card) {
-      const matches = card.textContent.toLowerCase().includes(term);
-      card.style.display = matches ? "" : "none";
-    });
-  });
-});
-```
 
 ### 5. Connect the files to the templates
 
