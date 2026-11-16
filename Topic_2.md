@@ -51,7 +51,7 @@ member = Member(firstname='Joana', lastname='Silva')
 member.save()
 ```
 
-### 5. Running the server
+### 3. Running the server
 
 **Codespaces:** `python manage.py runserver 0.0.0.0:8000`, then open the **Ports** tab and click the globe icon next to port 8000.
 
@@ -110,7 +110,7 @@ Add to `urlpatterns` in `members/urls.py`:
 
 The `<str:name>` part captures that piece of the URL and passes it to the view as the argument `name`.
 
-### Step 5: Test it
+### Step 3: Test it
 
 | Open this URL | You should see |
 |---|---|
@@ -158,8 +158,8 @@ Test it:
 
 | Open this URL | You should see |
 |---|---|
-| `<site>/info/` | Method: GET, Path: /info/, Hello, stranger! |
-| `<site>/info/?name=Alice` | Method: GET, Path: /info/, Hello, Alice! |
+| `/info/` | Method: GET, Path: /info/, Hello, stranger! |
+| `/info/?name=Alice` | Method: GET, Path: /info/, Hello, Alice! |
 
 Useful attributes: `request.method`, `request.path`, `request.GET` (query string values), `request.POST` (submitted form values), `request.user`.
 
@@ -172,7 +172,7 @@ Create the folders and the base template at `members/templates/members/base.html
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{% block title %}Book Club{% endblock %}</title>
+  <title>{% block title %}Home{% endblock %}</title>
 </head>
 <body>
   <nav>
@@ -197,8 +197,8 @@ Create `members/templates/members/member_list.html`:
   <ul>
     {% for member in members %}
       <li>
-        <a href="{% url 'members:detail' member.id %}">{{ member.name }}</a>
-        &mdash; {{ member.favorite_book }}
+        <a href="{% url 'members:detail' member.id %}">{{ member.firstname }} {{ member.lastname }}</a>
+        &mdash; {{ member.joined_date }}
       </li>
     {% empty %}
       <li>No members yet.</li>
@@ -212,13 +212,13 @@ Create `members/templates/members/member_detail.html`:
 ```html
 {% extends "members/base.html" %}
 
-{% block title %}{{ member.name }}{% endblock %}
+{% block title %}{{ member.id }}{% endblock %}
 
 {% block content %}
-  <h1>{{ member.name }}</h1>
+  <h1>{{ member.firstname }} {{ member.lastname}}</h1>
   <p>Email: {{ member.email }}</p>
-  <p>Favourite book: {{ member.favorite_book }}</p>
-  <p>Joined: {{ member.joined }}</p>
+  <p>Phone: {{ member.phone }}</p>
+  <p>Joined: {{ member.joined_date }}</p>
   <p><a href="{% url 'members:list' %}">Back to the list</a></p>
 {% endblock %}
 ```
@@ -227,6 +227,7 @@ Add the views to `members/views.py`, updating the imports at the top:
 
 ```python
 from django.shortcuts import get_object_or_404, redirect, render
+from .models import Member
 ```
 
 ```python
@@ -240,6 +241,12 @@ def member_detail(request, member_id):
     return render(request, "members/member_detail.html", {"member": member})
 ```
 
+Also update:
+```python
+def home(request):
+    return render(request, "members/home.html")
+```
+
 Add the routes:
 
 ```python
@@ -248,6 +255,17 @@ Add the routes:
 ```
 
 `get_object_or_404` returns the object, or automatically sends a 404 response if it does not exist.
+
+Before running the server again, the above code only works if the model Member is updated with new fields.
+
+### 3. Add new fields to model
+In `members/models.py` add the following code to the Member class:
+```python
+    email = models.CharField(max_length=255, null=True)
+    phone = models.IntegerField(null=True)
+    joined_date = models.DateField(null=True)
+```
+Now run the server and check the new layout and urls.
 
 ### 4. Redirects and errors
 
