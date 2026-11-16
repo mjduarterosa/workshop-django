@@ -347,26 +347,6 @@ Add a `favorite_book` line to the list page that shows "Not set" when it is empt
 | `uuid` | A formatted UUID | `orders/<uuid:id>/` |
 | `path` | Any text, including `/` | `files/<path:filepath>/` |
 
-A route can capture several values. Add a view to `members/views.py`:
-
-```python
-def members_by_year(request, year):
-    members = Member.objects.filter(joined__year=year)
-    return render(request, "members/member_list.html", {"members": members})
-```
-
-Add the route:
-
-```python
-    path("members/archive/<int:year>/", views.members_by_year, name="archive"),
-```
-
-| Open this URL | You should see |
-|---|---|
-| `<site>/members/archive/2024/` | Alice and Bob |
-| `<site>/members/archive/2025/` | Carla and David |
-| `<site>/members/archive/abc/` | A 404 (`int` does not match `abc`) |
-
 ### 2. Pattern order matters
 
 Django uses the **first** pattern that matches. Imagine you had written this in `members/urls.py`:
@@ -389,8 +369,8 @@ from django.urls import path, re_path
 Add two views to `members/views.py`:
 
 ```python
-def members_by_month(request, year, month):
-    members = Member.objects.filter(joined__year=int(year), joined__month=int(month))
+def members_by_year(request, year):
+    members = Member.objects.filter(joined__year=int(year))
     return render(request, "members/member_list.html", {"members": members})
 
 
@@ -403,7 +383,7 @@ Add the routes:
 
 ```python
     re_path(
-        r"^members/archive/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$",
+        r"^members/archive/(?P<year>[0-9]{4})/$",
         views.members_by_month,
         name="archive-month",
     ),
@@ -416,11 +396,8 @@ Add the routes:
 
 | Open this URL | You should see |
 |---|---|
-| `<site>/members/archive/2024/03/` | Alice and Bob |
-| `<site>/members/archive/2025/06/` | David |
-| `<site>/members/archive/2025/6/` | A 404 (month must be two digits) |
-| `<site>/members/initial/c/` | Carla |
-| `<site>/members/initial/cc/` | A 404 (only one letter allowed) |
+| `/members/archive/2026/` | Alice and Bob |
+| `/members/initial/m/` | Carla |
 
 **How to read the regular expression**
 
