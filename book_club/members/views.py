@@ -26,6 +26,7 @@ class MemberDetailView(DetailView):
                 status=404,
             )
 
+
 class AboutView(TemplateView):
     template_name = "members/about.html"
 
@@ -35,7 +36,12 @@ def members(request):
 
 
 def home(request):
-    return render(request, "members/home.html")
+    context = {
+        "club_name": "Page Turners",
+        "member_count": Member.objects.count(),
+        "banner": "<em>Next meeting: the first Friday of the month</em>",
+    }
+    return render(request, "members/home.html", context)
 
 
 def hello(request, name):

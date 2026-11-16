@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+  {% block extra_head %}{% endblock %}
 <head>
   <meta charset="utf-8">
   <title>{% block title %}Book Club{% endblock %}</title>
@@ -11,5 +12,11 @@
   </nav>
   <hr>
   {% block content %}{% endblock %}
+  <footer>
+    <hr>
+    <p>&copy; {% now "Y" %} Book Club</p>
+  </footer>
+
+  {% block scripts %}{% endblock %}
 </body>
 </html>
