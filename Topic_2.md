@@ -300,6 +300,21 @@ def member_detail(request, member_id):
 ```
 Re-run server.
 
+If you would like to create a generic 404 error page for when the application is in production add a template called `404.html` to the templates folder:
+
+```html
+{% extends "members/base.html" %}
+
+{% block title %}Page not found{% endblock %}
+
+{% block content %}
+  <h1>Page not found</h1>
+  <p>{{ exception }}</p>
+  <p><a href="{% url 'members:home' %}">Go back home</a></p>
+{% endblock %}
+```
+You will only be able to see this page when you are not in debug mode. We will see this later in the workshop.
+
 ### Test it
 
 | Open this URL | You should see |
@@ -312,7 +327,7 @@ Re-run server.
 
 - [ ] The member list shows all members
 - [ ] Clicking a member opens the detail page
-- [ ] A non-existent ID shows a 404
+- [ ] A non-existent ID shows a member not found page
 
 ### Exercise
 
