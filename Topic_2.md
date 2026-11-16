@@ -370,12 +370,12 @@ Add two views to `members/views.py`:
 
 ```python
 def members_by_year(request, year):
-    members = Member.objects.filter(joined__year=int(year))
+    members = Member.objects.filter(joined_date__year=int(year))
     return render(request, "members/member_list.html", {"members": members})
 
 
 def members_by_initial(request, letter):
-    members = Member.objects.filter(name__istartswith=letter)
+    members = Member.objects.filter(firstname__istartswith=letter)
     return render(request, "members/member_list.html", {"members": members})
 ```
 
@@ -384,8 +384,8 @@ Add the routes:
 ```python
     re_path(
         r"^members/archive/(?P<year>[0-9]{4})/$",
-        views.members_by_month,
-        name="archive-month",
+        views.members_by_year,
+        name="archive-year",
     ),
     re_path(
         r"^members/initial/(?P<letter>[A-Za-z])/$",
@@ -400,7 +400,7 @@ Add the routes:
 | `/members/initial/m/` | Carla |
 
 **How to read the regular expression**
-
+#
 | Part | Meaning |
 |---|---|
 | `^` and `$` | The route must match from the start to the end |
@@ -410,35 +410,10 @@ Add the routes:
 
 Values captured by `re_path` always arrive as **strings**, which is why the view converts them with `int()`.
 
-### 4. Reversing URLs
-
-Never hard-code URLs. Use the route name instead:
-
-```python
-from django.urls import reverse
-
-reverse("members:detail", args=[2])          # '/members/2/'
-reverse("members:archive", args=[2024])      # '/members/archive/2024/'
-reverse("members:initial", args=["c"])       # '/members/initial/c/'
-```
-
-In templates, use the `url` tag:
-
-```html
-<a href="{% url 'members:archive' 2024 %}">Joined in 2024</a>
-```
-
-Try it in the shell with `python manage.py shell`. If you later change a route, every link updates automatically.
-
-### Checkpoint
-
-- [ ] `/members/archive/2024/` and `/members/archive/2024/03/` both work
-- [ ] `/members/initial/c/` lists Carla
-- [ ] You can explain why `/members/archive/2025/6/` returns a 404
 
 ### Exercise
 
-Add a route `members/joined/<int:year>-<int:month>/` using `path` and write the matching view.
+Add a route `members/joined/<int:year>-<int:month>/` using `re_path` and write the matching view.
 
 ---
 
@@ -478,13 +453,9 @@ They reuse the templates from Section B. Update `members/urls.py` by replacing t
 
 The detail route now uses `pk`, which is the name `DetailView` expects by default. The `{% url 'members:detail' member.id %}` links in the templates still work, because they pass the value by position.
 
-You can now delete `member_list` and `member_detail` from `members/views.py`, since nothing uses them. Update `latest_member` to match the new parameter name:
+You can now delete `member_list` and `member_detail` from `members/views.py`, since nothing uses them.
 
-```python
-    return redirect("members:detail", pk=member.id)
-```
-
-Check `/members/`, `/members/2/` and `/members/latest/`.
+Check `/members/` and `/members/1/`.
 
 ### 2. TemplateView for static pages
 
@@ -532,92 +503,6 @@ Add a route that sends an old address to the new one:
 
 Opening `<site>/people/` now redirects to `/members/`.
 
-### 4. CreateView for forms
-
-Update the imports in `members/views.py`:
-
-```python
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView, TemplateView
-```
-
-Add:
-
-```python
-class MemberCreateView(CreateView):
-    model = Member
-    fields = ["name", "email", "favorite_book"]
-    template_name = "members/member_form.html"
-    success_url = reverse_lazy("members:list")
-```
-
-Create `members/templates/members/member_form.html`:
-
-```html
-{% extends "members/base.html" %}
-
-{% block content %}
-  <h1>Add a member</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-  </form>
-{% endblock %}
-```
-
-Add the route:
-
-```python
-    path("members/add/", views.MemberCreateView.as_view(), name="add"),
-```
-
-Add a link to the form in `members/templates/members/base.html` by extending the navigation:
-
-```html
-    <a href="{% url 'members:list' %}">Members</a> |
-    <a href="{% url 'members:add' %}">Add member</a>
-```
-
-Open `<site>/members/add/`, submit the form, and the new member appears in the list.
-
-### The complete `members/urls.py`
-
-Here is the file as it should look at the end of this part:
-
-```python
-from django.urls import path, re_path
-from django.views.generic import RedirectView
-
-from . import views
-
-app_name = "members"
-
-urlpatterns = [
-    path("", views.home, name="home"),
-    path("hello/<str:name>/", views.hello, name="hello"),
-    path("info/", views.request_info, name="info"),
-    path("about/", views.AboutView.as_view(), name="about"),
-    path("people/", RedirectView.as_view(pattern_name="members:list"), name="people"),
-    path("members/", views.MemberListView.as_view(), name="list"),
-    path("members/json/", views.member_list_json, name="list-json"),
-    path("members/latest/", views.latest_member, name="latest"),
-    path("members/add/", views.MemberCreateView.as_view(), name="add"),
-    path("members/<int:pk>/", views.MemberDetailView.as_view(), name="detail"),
-    path("members/archive/<int:year>/", views.members_by_year, name="archive"),
-    re_path(
-        r"^members/archive/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$",
-        views.members_by_month,
-        name="archive-month",
-    ),
-    re_path(
-        r"^members/initial/(?P<letter>[A-Za-z])/$",
-        views.members_by_initial,
-        name="initial",
-    ),
-]
-```
-
 ### Function views or class-based views?
 
 | | Function-based views | Class-based generic views |
@@ -633,11 +518,10 @@ Both are normal Django. Use generic views for standard tasks and function views 
 - [ ] `/members/` and `/members/<id>/` work using generic views
 - [ ] `/about/` shows the about page
 - [ ] `/people/` redirects to `/members/`
-- [ ] `/members/add/` adds a new member that appears in the list
 
-### Exercise
+### Exercise (advanced)
 
-Add an `UpdateView` that lets you edit a member and a `DeleteView` that removes one. Use `fields`, `template_name` and `success_url` as in `MemberCreateView`.
+Add an `UpdateView` that lets you edit a member and a `DeleteView` that removes one.
 
 ---
 
@@ -649,6 +533,6 @@ Add an `UpdateView` that lets you edit a member and a `DeleteView` that removes 
 | `TemplateDoesNotExist` | Check the path is `members/templates/members/<file>.html` and that `"members"` is in `INSTALLED_APPS` |
 | `no such table: members_member` | Run `python manage.py makemigrations members` and then `python manage.py migrate` |
 | `got an unexpected keyword argument 'member_id'` | The view's argument name must match the name in the route. Generic views expect `pk` |
-| 404 on a route you just added | Check the route is in `members/urls.py` and appears before any general pattern |
+| 404 on a route you just added | Check the route is in `members/urls.py` and appears before any general pattern |Use `fields`, `template_name` and
 | `DisallowedHost` (Codespaces) | Add the settings block from Setup step 2 and restart the server |
 | `CSRF verification failed` on a form (Codespaces) | The `CSRF_TRUSTED_ORIGINS` block is missing, or the template has no `{% csrf_token %}` |
