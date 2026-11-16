@@ -1,7 +1,7 @@
-# IV. Templates and Static Files (2 hours)
+# III. Templates and Static Files (2 hours)
 
 | Section | Topic |
-|---|---|---|
+|---|---|
 | A | Overview of Django templates | 
 | B | Creating and using template files | 
 | C | Templating language and syntax | 
@@ -364,5 +364,3 @@ Add a favicon: create a small SVG at `members/static/members/images/favicon.svg`
 ```html
 <link rel="icon" href="{% static 'members/images/favicon.svg' %}">
 ```
-
----

@@ -526,5 +526,3 @@ Both are normal Django. Use generic views for standard tasks and function views 
 ### Exercise (advanced)
 
 Add an `UpdateView` that lets you edit a member and a `DeleteView` that removes one.
-
----
