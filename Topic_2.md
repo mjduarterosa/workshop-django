@@ -163,33 +163,7 @@ Test it:
 
 Useful attributes: `request.method`, `request.path`, `request.GET` (query string values), `request.POST` (submitted form values), `request.user`.
 
-### 2. Returning JSON
-
-Add to the imports at the top of `members/views.py`:
-
-```python
-from django.http import HttpResponse, JsonResponse
-
-from .models import Member
-```
-
-Add the view:
-
-```python
-def member_list_json(request):
-    members = list(Member.objects.values("id", "name", "favorite_book"))
-    return JsonResponse({"members": members})
-```
-
-Add the route:
-
-```python
-    path("members/json/", views.member_list_json, name="list-json"),
-```
-
-Open `<site>/members/json/` to see the data as JSON.
-
-### 3. Rendering templates
+### 2. Rendering templates
 
 Create the folders and the base template at `members/templates/members/base.html`. The folder name `members` appears twice on purpose. It stops template names clashing between apps.
 
