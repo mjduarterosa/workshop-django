@@ -100,6 +100,10 @@ class ReadingLog(models.Model):
         return f"{self.member} read {self.book}"
 ```
 
+### Exercise
+
+Add a `def __str__(self):` to the Member class for a better display of information.
+
 ### 3. What each part means
 
 **Common field types**
@@ -385,7 +389,7 @@ Django includes a ready-made website for managing your data. It is generated fro
 python manage.py createsuperuser
 ```
 
-Enter a username, an email (optional) and a password. The password is hidden while you type. If Django warns that the password is too simple, you can type `y` to keep it for this workshop. Do not do this on a real site.
+Enter a username (e.g. "admin"), an email (optional) and a password. The password is hidden while you type. If Django warns that the password is too simple, you can type `y` to keep it for this workshop. Do not do this on a real site.
 
 ### 2. Log in
 
@@ -409,7 +413,7 @@ admin.site.register(Book)
 admin.site.register(ReadingLog)
 ```
 
-Refresh the admin page. A **Members** section appears with **Books**, **Members** and **Reading logs**. Click around. Notice that the readable text comes from each model's `__str__` method: "Alice Johnson read Dune by Frank Herbert".
+Refresh the admin page. A **Members** section appears with **Books**, **Members** and **Reading logs**. Click around. Notice that the readable text comes from each model's `__str__` method.
 
 ### 4. Customize how each model looks
 
