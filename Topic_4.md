@@ -1,4 +1,4 @@
-# Models and Databases (2 hours)
+# IV. Models and Databases (2 hours)
 
 | Section | Topic |
 |---|---|
@@ -35,11 +35,6 @@ SQLite stores everything in the single file `db.sqlite3` next to `manage.py`. It
 
 **Try it:** in Codespaces, click `db.sqlite3` in the VS Code file explorer. The SQLite Viewer extension (installed by our devcontainer) shows every table and its rows. Locally, install the "SQLite Viewer" extension in VS Code to do the same. Find the `members_member` table and look at its columns.
 
-### Checkpoint
-
-- [ ] You can explain how a model, a field and an instance map to a table, a column and a row
-- [ ] You have found `members_member` in the database file
-
 ---
 
 ## B. Defining models and fields
@@ -59,26 +54,12 @@ Member  1 ───── many  ReadingLog  many ───── 1  Book
 
 ### 2. Write the code
 
-Replace the contents of `members/models.py`. The `Member` model stays exactly as it was:
+Add the following classes to `members/models.py`:
 
 ```python
 from datetime import date
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
-
-class Member(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    favorite_book = models.CharField(max_length=200, blank=True)
-    joined = models.DateField(default=date.today)
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
-
 
 class Book(models.Model):
     title = models.CharField(max_length=200)
@@ -218,26 +199,29 @@ books = [
     ("The Hobbit", "J.R.R. Tolkien", 310, 1937),
     ("Gone Girl", "Gillian Flynn", 422, 2012),
 ]
-for title, author, genre, pages, year in books:
+for title, author, pages, year in books:
     Book.objects.create(title=title, author=author, pages=pages, published_year=year)
 ```
 
 Now record who read what. Pass **objects**, not ids, to a foreign key:
 
 ```python
-maria = Member.objects.get(name="Maria Rosa")
+maria = Member.objects.get(email="mariarosa@email.com")
 ReadingLog.objects.create(member=maria, book=pride, date_finished=date(2026, 4, 10))
 ```
 
-Add the remaining logs:
-
+Add more members for example:
+```python
+ana = Member.objects.create(firstname='Ana', lastname='Santos', email= 'anasantos@email.com', phone=915769899, joined_date= date(2023, 2, 7))
+```
+And new reading logs:
 ```python
 logs = [
-    ("Maria Rosa", "Dune", date(2025, 7, 2)),
-    ("Alice Johnson", "Sapiens", date(2025, 2, 15), 4),
+    ("mariarosa@email.com", "Gone Girl", date(2025, 7, 2)),
+    ("anasantos@email.com", "Beloved", date(2025, 2, 15)),
 ]
-for member_name, title, finished in logs:
-    ReadingLog.objects.create(member=Member.objects.get(name=member_name), book=Book.objects.get(title=title), date_finished=finished)
+for member_email, title, finished in logs:
+    ReadingLog.objects.create(member=Member.objects.get(email=member_email), book=Book.objects.get(title=title), date_finished=finished)
 ```
 
 If you run these blocks twice, the unique constraints stop you with an `IntegrityError`. That means the rules are working.
@@ -246,7 +230,7 @@ If you run these blocks twice, the unique constraints stop you with an `Integrit
 
 ```python
 Book.objects.all()                       # every book, ordered by title
-Book.objects.count()                     # 6
+Book.objects.count()                     # 5
 Book.objects.first()                     # <Book: Beloved by Toni Morrison>
 Book.objects.get(title="Dune")           # exactly one match (or an error)
 Book.objects.order_by("-published_year").first() # the newest book (Gone Girl)
@@ -282,26 +266,24 @@ Book.objects.get(title="Nope")
 
 ```python
 log = ReadingLog.objects.first()   # the most recent log (ordering is -date_finished)
-log.member                         # <Member: David Lee>
-log.book                           # <Book: Gone Girl by Gillian Flynn>
-log                                # <ReadingLog: David Lee read Gone Girl by Gillian Flynn>
+log.member                         # <Member: Member object (4)>
+log.book                           # <Book: Pride and Prejudice by Jane Austen>
 ```
 
 Going **backwards** uses the `related_name` we chose:
 
 ```python
-maria.readings.all()               # Alice's three logs
+maria.readings.all()               # maria's logs
 maria.readings.count()             # 3
 dune = Book.objects.get(title="Dune")
-dune.readings.all()                # the two logs for Dune
+dune.readings.all()                # logs for Dune
 ```
 
 Filtering **across** a relationship uses double underscores:
 
 ```python
-ReadingLog.objects.filter(member__name="Maria Rosa")
-Book.objects.filter(readings__member=maria)          # the books Alice has read
-ReadingLog.objects.filter(rating__gte=5)             # all five-star logs
+ReadingLog.objects.filter(member__firstname="Maria")
+Book.objects.filter(readings__member=maria)          # the books Maria has read
 
 ```
 
@@ -312,7 +294,7 @@ dune.pages = 500
 dune.save()                                          # update one object
 
 temp = Book.objects.create(title="Temporary", author="Nobody")
-temp.delete()                                        # (1, {'members.Book': 1})
+temp.delete()                                        # delete book
 ```
 
 Put `dune.pages` back to 412 afterwards.
@@ -322,7 +304,7 @@ Put `dune.pages` back to 412 afterwards.
 The database rules are enforced when you save:
 
 ```python
-ReadingLog.objects.create(member=alice, book=pride)
+ReadingLog.objects.create(member=maria, book=dune)
 # django.db.utils.IntegrityError: UNIQUE constraint failed: ...
 ```
 
@@ -345,7 +327,8 @@ python manage.py showmigrations members
 ```
 members
  [X] 0001_initial
- [X] 0002_books_and_readings
+ [X] ...
+ [X] 0003_books_and_readings
 ```
 
 The workflow is always the same:
@@ -366,7 +349,7 @@ It is impossible to add a non-nullable field 'rating_note' to readinglog without
 
 Choose **2**, then add `default=""`, `blank=True` or `null=True` to the field. (We did not add `rating_note`, so you do not need to try this.)
 
-### 3. Going back (optional step)
+### 3. Going back (do not run)
 
 You can undo the latest migration by migrating to the one before it:
 
