@@ -1,12 +1,12 @@
 # Models and Databases (2 hours)
 
-| Section | Topic | Suggested time |
-|---|---|---|
-| A | Introduction to Django's models and ORM | 15 min |
-| B | Defining models and fields | 25 min |
-| C | Using the Django shell for database interactions | 30 min |
-| D | Migrating and updating the database schema | 20 min |
-| E | Managing data with the Django admin | 30 min |
+| Section | Topic |
+|---|---|
+| A | Introduction to Django's models and ORM | 
+| B | Defining models and fields | 
+| C | Using the Django shell for database interactions | 
+| D | Migrating and updating the database schema | 
+| E | Managing data with the Django admin | 
 
 This part continues the **Book Club** project (project `book_club`, app `members`). We already have a `Member` model. Now we add models for **books** and for **which member has read which book**, then learn to manage all of it from Django's built-in admin site.
 
@@ -14,57 +14,9 @@ All file paths below are relative to the folder that contains `manage.py`.
 
 ---
 
-## Setup
-
-You need the project from the earlier parts, with the `members` app, the `Member` model, and the four sample members (Alice Johnson, Bob Smith, Carla Gomez and David Lee).
-
-Check the current state of the database:
-
-```bash
-python manage.py showmigrations members
-```
-
-You should see `[X] 0001_initial`, which means the `Member` table already exists.
-
-Start the server when you need it:
-
-- **Codespaces:** `python manage.py runserver 0.0.0.0:8000`, then open port 8000 from the **Ports** tab.
-- **Local:** `python manage.py runserver`, then open [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
-
-In this document, `<site>` means the base address of your running site.
-
----
-
 ## A. Introduction to Django's models and ORM
 
-### Models are Python classes that become database tables
-
-A **model** describes the data your site stores. Django turns each model into a database table, and the **ORM** (Object-Relational Mapper) lets you work with that table using Python instead of SQL.
-
-| Python (the model) | Database |
-|---|---|
-| A model class (`Member`) | A table (`members_member`) |
-| A field (`name = CharField(...)`) | A column |
-| An instance (`Member(name="Alice")`) | A row |
-| `Member.objects` | The tool for querying the table |
-
-The table name is the app name plus the model name in lower case: `members_member`, and soon `members_book` and `members_readinglog`.
-
-### The same query in SQL and in the ORM
-
-```sql
-SELECT * FROM members_member WHERE name LIKE 'A%';
-```
-
-```python
-Member.objects.filter(name__startswith="A")
-```
-
-The ORM gives you three benefits:
-
-- You write Python, not SQL, so one language covers the whole project.
-- It protects you from SQL injection, because values are always passed safely.
-- It works with several databases (SQLite, PostgreSQL, MySQL). You change one setting, not your code.
+See slides.
 
 ### Where the data lives
 
@@ -96,8 +48,8 @@ SQLite stores everything in the single file `db.sqlite3` next to `manage.py`. It
 
 We add two models:
 
-- **`Book`**: a book the club knows about (title, author, genre, and so on).
-- **`ReadingLog`**: a record that says "this member has read this book", with the date finished, a rating and notes.
+- **`Book`**: a book the club knows about (title, author, and so on).
+- **`ReadingLog`**: a record that says "this member has read this book", with the date finished.
 
 Two members can read the same book, and one member reads many books. `ReadingLog` connects the two: it holds a **foreign key** (a link) to a `Member` and to a `Book`.
 
@@ -111,7 +63,6 @@ Replace the contents of `members/models.py`. The `Member` model stays exactly as
 
 ```python
 from datetime import date
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -130,17 +81,8 @@ class Member(models.Model):
 
 
 class Book(models.Model):
-    class Genre(models.TextChoices):
-        FICTION = "FIC", "Fiction"
-        NONFICTION = "NON", "Non-fiction"
-        FANTASY = "FAN", "Fantasy"
-        SCIFI = "SCI", "Science fiction"
-        MYSTERY = "MYS", "Mystery"
-        OTHER = "OTH", "Other"
-
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=100)
-    genre = models.CharField(max_length=3, choices=Genre.choices, default=Genre.FICTION)
     pages = models.PositiveIntegerField(null=True, blank=True)
     published_year = models.PositiveSmallIntegerField(null=True, blank=True)
 
@@ -164,12 +106,6 @@ class ReadingLog(models.Model):
         Book, on_delete=models.CASCADE, related_name="readings"
     )
     date_finished = models.DateField(default=date.today)
-    rating = models.PositiveSmallIntegerField(
-        null=True,
-        blank=True,
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
-    )
-    notes = models.TextField(blank=True)
 
     class Meta:
         ordering = ["-date_finished"]
@@ -190,12 +126,9 @@ class ReadingLog(models.Model):
 | Field | Stores | Example in our models |
 |---|---|---|
 | `CharField(max_length=...)` | Short text | `title`, `author` |
-| `TextField` | Long text | `notes` |
-| `EmailField` | Text checked as an email address | `email` |
 | `PositiveIntegerField` | A whole number that is 0 or more | `pages` |
-| `PositiveSmallIntegerField` | A small whole number that is 0 or more | `rating`, `published_year` |
+| `PositiveSmallIntegerField` | A small whole number that is 0 or more | `published_year` |
 | `DateField` | A date | `joined`, `date_finished` |
-| `BooleanField` | True or False | Added in Section D |
 | `ForeignKey` | A link to a row in another table | `member`, `book` |
 
 **Common field options**
@@ -216,7 +149,6 @@ class ReadingLog(models.Model):
 
 | Part | Meaning |
 |---|---|
-| `class Genre(models.TextChoices)` | A tidy way to define `choices`. The first value (`"FIC"`) is stored in the database, and the second (`"Fiction"`) is shown to people |
 | `ForeignKey(Member, on_delete=models.CASCADE)` | Links each log to one member. `CASCADE` means that deleting a member also deletes their logs |
 | `related_name="readings"` | Lets you go backwards: `member.readings.all()` gives all logs for a member |
 | `class Meta: ordering` | The default order of results |
@@ -237,17 +169,6 @@ python manage.py migrate
 - `makemigrations` compares your models with the existing migrations and writes a new migration file, `members/migrations/0002_books_and_readings.py`.
 - `migrate` runs the migration and creates the tables.
 
-You will see:
-
-```
-Migrations for 'members':
-  members/migrations/0002_books_and_readings.py
-    + Create model Book
-    + Create model ReadingLog
-    + Create constraint unique_book_title_author on model book
-    + Create constraint unique_member_book on model readinglog
-```
-
 Refresh the SQLite Viewer. You should now see `members_book` and `members_readinglog`. We look at migrations in more detail in Section D.
 
 ### Checkpoint
@@ -255,12 +176,6 @@ Refresh the SQLite Viewer. You should now see `members_book` and `members_readin
 - [ ] `migrate` finishes without errors
 - [ ] The database has the tables `members_book` and `members_readinglog`
 - [ ] You can explain what `ForeignKey` and `on_delete=CASCADE` mean
-
-### Exercise
-
-Add a `summary = models.TextField(blank=True)` field to `Book` in your head, and decide which two commands you would run to update the database. (You do the real thing for a different field in Section D.)
-
----
 
 ## C. Using the Django shell for database interactions
 
@@ -282,7 +197,7 @@ from members.models import Book, Member, ReadingLog
 Create a book in two steps (build it, then save it):
 
 ```python
-pride = Book(title="Pride and Prejudice", author="Jane Austen", genre=Book.Genre.FICTION, pages=432, published_year=1813)
+pride = Book(title="Pride and Prejudice", author="Jane Austen", pages=432, published_year=1813)
 pride.id          # None: not in the database yet
 pride.save()
 pride.id          # 1: now it has a primary key
@@ -292,44 +207,37 @@ pride             # <Book: Pride and Prejudice by Jane Austen>
 Or create and save in one call:
 
 ```python
-Book.objects.create(title="Dune", author="Frank Herbert", genre=Book.Genre.SCIFI, pages=412, published_year=1965)
+Book.objects.create(title="Dune", author="Frank Herbert", pages=412, published_year=1965)
 ```
 
 Add the rest of the books with a loop (these are sample values):
 
 ```python
 books = [
-    ("Beloved", "Toni Morrison", Book.Genre.FICTION, 324, 1987),
-    ("The Hobbit", "J.R.R. Tolkien", Book.Genre.FANTASY, 310, 1937),
-    ("Gone Girl", "Gillian Flynn", Book.Genre.MYSTERY, 422, 2012),
-    ("Sapiens", "Yuval Noah Harari", Book.Genre.NONFICTION, 443, 2011),
+    ("Beloved", "Toni Morrison", 324, 1987),
+    ("The Hobbit", "J.R.R. Tolkien", 310, 1937),
+    ("Gone Girl", "Gillian Flynn", 422, 2012),
 ]
 for title, author, genre, pages, year in books:
-    Book.objects.create(title=title, author=author, genre=genre, pages=pages, published_year=year)
+    Book.objects.create(title=title, author=author, pages=pages, published_year=year)
 ```
 
 Now record who read what. Pass **objects**, not ids, to a foreign key:
 
 ```python
-alice = Member.objects.get(name="Alice Johnson")
-ReadingLog.objects.create(member=alice, book=pride, date_finished=date(2024, 4, 10), rating=5)
+maria = Member.objects.get(name="Maria Rosa")
+ReadingLog.objects.create(member=maria, book=pride, date_finished=date(2026, 4, 10))
 ```
 
 Add the remaining logs:
 
 ```python
 logs = [
-    ("Alice Johnson", "Dune", date(2024, 7, 2), 4),
+    ("Maria Rosa", "Dune", date(2025, 7, 2)),
     ("Alice Johnson", "Sapiens", date(2025, 2, 15), 4),
-    ("Bob Smith", "Dune", date(2024, 5, 20), 5),
-    ("Bob Smith", "The Hobbit", date(2024, 9, 8), 4),
-    ("Carla Gomez", "Beloved", date(2025, 3, 3), 5),
-    ("Carla Gomez", "Pride and Prejudice", date(2025, 4, 12), 3),
-    ("David Lee", "The Hobbit", date(2025, 7, 19), 5),
-    ("David Lee", "Gone Girl", date(2025, 8, 30), 3),
 ]
-for member_name, title, finished, rating in logs:
-    ReadingLog.objects.create(member=Member.objects.get(name=member_name), book=Book.objects.get(title=title), date_finished=finished, rating=rating)
+for member_name, title, finished in logs:
+    ReadingLog.objects.create(member=Member.objects.get(name=member_name), book=Book.objects.get(title=title), date_finished=finished)
 ```
 
 If you run these blocks twice, the unique constraints stop you with an `IntegrityError`. That means the rules are working.
@@ -341,8 +249,6 @@ Book.objects.all()                       # every book, ordered by title
 Book.objects.count()                     # 6
 Book.objects.first()                     # <Book: Beloved by Toni Morrison>
 Book.objects.get(title="Dune")           # exactly one match (or an error)
-Book.objects.filter(genre=Book.Genre.FICTION)    # Beloved and Pride and Prejudice
-Book.objects.exclude(genre=Book.Genre.FICTION)   # everything else
 Book.objects.order_by("-published_year").first() # the newest book (Gone Girl)
 Book.objects.filter(pages__gt=400)       # more than 400 pages
 Book.objects.filter(title__icontains="the")      # case-insensitive "contains"
@@ -362,7 +268,6 @@ Book.objects.values("title", "author")   # dictionaries instead of objects
 | `contains`, `icontains` | Contains text | `title__icontains="the"` |
 | `startswith`, `istartswith` | Starts with | `name__istartswith="a"` |
 | `gt`, `gte`, `lt`, `lte` | Greater or less than | `pages__gte=400` |
-| `in` | In a list | `genre__in=["FIC", "FAN"]` |
 | `year`, `month` | Part of a date | `joined__year=2024` |
 | `isnull` | Is empty | `pages__isnull=True` |
 
@@ -385,8 +290,8 @@ log                                # <ReadingLog: David Lee read Gone Girl by Gi
 Going **backwards** uses the `related_name` we chose:
 
 ```python
-alice.readings.all()               # Alice's three logs
-alice.readings.count()             # 3
+maria.readings.all()               # Alice's three logs
+maria.readings.count()             # 3
 dune = Book.objects.get(title="Dune")
 dune.readings.all()                # the two logs for Dune
 ```
@@ -394,36 +299,17 @@ dune.readings.all()                # the two logs for Dune
 Filtering **across** a relationship uses double underscores:
 
 ```python
-ReadingLog.objects.filter(member__name="Alice Johnson")
-Book.objects.filter(readings__member=alice)          # the books Alice has read
+ReadingLog.objects.filter(member__name="Maria Rosa")
+Book.objects.filter(readings__member=maria)          # the books Alice has read
 ReadingLog.objects.filter(rating__gte=5)             # all five-star logs
-ReadingLog.objects.filter(book__genre=Book.Genre.FANTASY)
+
 ```
 
-### 4. Calculate with aggregates
-
-```python
-from django.db.models import Avg, Count
-
-ReadingLog.objects.aggregate(Avg("rating"))
-# {'rating__avg': 4.22...}
-
-Book.objects.annotate(avg_rating=Avg("readings__rating")).order_by("-avg_rating").first()
-# <Book: Beloved by Toni Morrison>   (average rating 5.0)
-
-Member.objects.annotate(books_read=Count("readings")).order_by("-books_read").first()
-# <Member: Alice Johnson>            (3 books)
-```
-
-`aggregate()` returns one summary value for the whole queryset. `annotate()` adds a calculated value to **each** object.
-
-### 5. Update and delete
+### 4. Update and delete
 
 ```python
 dune.pages = 500
 dune.save()                                          # update one object
-
-ReadingLog.objects.filter(rating__lt=4).update(notes="Not my favourite")   # update many rows at once
 
 temp = Book.objects.create(title="Temporary", author="Nobody")
 temp.delete()                                        # (1, {'members.Book': 1})
@@ -431,49 +317,24 @@ temp.delete()                                        # (1, {'members.Book': 1})
 
 Put `dune.pages` back to 412 afterwards.
 
-### 6. See the SQL Django writes
-
-```python
-print(Book.objects.filter(pages__gt=400).query)
-```
-
-You will see a `SELECT ... FROM "members_book" WHERE "members_book"."pages" > 400 ORDER BY ...` statement. The ORM is only building SQL for you.
-
-### 7. Constraints and validators
+### 5. Constraints and validators
 
 The database rules are enforced when you save:
 
 ```python
-ReadingLog.objects.create(member=alice, book=pride, rating=5)
+ReadingLog.objects.create(member=alice, book=pride)
 # django.db.utils.IntegrityError: UNIQUE constraint failed: ...
 ```
 
-Validators are **not** run by `save()`. They run in forms and in the admin, or when you call `full_clean()` yourself:
-
-```python
-bad = ReadingLog(member=alice, book=Book.objects.get(title="Beloved"), rating=10)
-bad.full_clean()
-# django.core.exceptions.ValidationError: {'rating': ['Ensure this value is less than or equal to 5.']}
-```
-
-Do not call `bad.save()`. It would store the invalid rating, which shows why validation matters.
-
-### Checkpoint
-
-- [ ] You created 6 books and 9 reading logs
-- [ ] `alice.readings.count()` gives `3`
-- [ ] You can explain the difference between `filter()` and `get()`
-- [ ] You can explain what `alice.readings.all()` does
-
 ### Exercise
 
-In the shell, find (1) all books with fewer than 350 pages, (2) all the books Bob has read, and (3) the average rating of `Dune`.
+In the shell, find (1) all books with fewer than 250 pages.
 
 ---
 
 ## D. Migrating and updating the database schema
 
-### 1. What migrations are
+### 1. What migrations are (optional step)
 
 A **migration** is a Python file that describes one step in the history of your database. Django keeps them in `members/migrations/`, and it records which have been applied in a table called `django_migrations`.
 
@@ -493,81 +354,7 @@ The workflow is always the same:
 2. `python manage.py makemigrations members`: write the migration file.
 3. `python manage.py migrate`: apply it to the database.
 
-### 2. Add two fields
-
-Edit `members/models.py`. Add an `isbn` field to `Book`, below `published_year`:
-
-```python
-    isbn = models.CharField(max_length=13, blank=True)
-```
-
-Add a `would_recommend` field to `ReadingLog`, below `notes`:
-
-```python
-    would_recommend = models.BooleanField(default=False)
-```
-
-### 3. Create and inspect the migration
-
-```bash
-python manage.py makemigrations members -n isbn_and_recommend
-```
-
-```
-Migrations for 'members':
-  members/migrations/0003_isbn_and_recommend.py
-    + Add field isbn to book
-    + Add field would_recommend to readinglog
-```
-
-Open `members/migrations/0003_isbn_and_recommend.py`. It is plain Python:
-
-```python
-class Migration(migrations.Migration):
-
-    dependencies = [
-        ("members", "0002_books_and_readings"),
-    ]
-
-    operations = [
-        migrations.AddField(
-            model_name="book",
-            name="isbn",
-            field=models.CharField(blank=True, max_length=13),
-        ),
-        migrations.AddField(
-            model_name="readinglog",
-            name="would_recommend",
-            field=models.BooleanField(default=False),
-        ),
-    ]
-```
-
-`dependencies` makes sure migrations run in order. To see the SQL a migration will run, without running it:
-
-```bash
-python manage.py sqlmigrate members 0003
-```
-
-### 4. Apply it
-
-```bash
-python manage.py migrate
-```
-
-```
-Applying members.0003_isbn_and_recommend... OK
-```
-
-Check in the shell that your existing data survived, and the new columns have their default values:
-
-```python
-from members.models import Book, ReadingLog
-Book.objects.first().isbn                      # ''
-ReadingLog.objects.first().would_recommend     # False
-```
-
-### 5. What if a new field has no default?
+### 2. What if a new field has no default? (optional step)
 
 Existing rows need a value for the new column. If you add a required field with no default, for example `rating_note = models.CharField(max_length=50)`, `makemigrations` stops and asks:
 
@@ -579,17 +366,7 @@ It is impossible to add a non-nullable field 'rating_note' to readinglog without
 
 Choose **2**, then add `default=""`, `blank=True` or `null=True` to the field. (We did not add `rating_note`, so you do not need to try this.)
 
-### 6. Common changes and what Django does
-
-| Change in `models.py` | What `makemigrations` does |
-|---|---|
-| Add a field | Creates an `AddField` (needs a default, `blank=True` for text, or `null=True`) |
-| Remove a field | Creates a `RemoveField`. **The data in that column is lost** |
-| Change a field's options | Creates an `AlterField` |
-| Rename a field | Asks "Did you rename...?" Answer `y` to keep the data |
-| Add or remove a model | Creates or deletes a table |
-
-### 7. Going back
+### 3. Going back (optional step)
 
 You can undo the latest migration by migrating to the one before it:
 
@@ -608,11 +385,6 @@ Rolling back removes the columns that the migration added, along with their data
 - **Never edit a migration that has already been applied or shared.** Make a new one instead.
 - If you are stuck in development and do not mind losing your data, you can delete `db.sqlite3` and run `migrate` again. You will need to recreate the sample data, and your superuser from Section E.
 
-### Checkpoint
-
-- [ ] `showmigrations` shows `0001`, `0002` and `0003`, all applied
-- [ ] Open `db.sqlite3` in the viewer: `members_book` now has an `isbn` column
-- [ ] You can explain the difference between `makemigrations` and `migrate`
 
 ### Exercise
 
