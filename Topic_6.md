@@ -222,7 +222,7 @@ CELERY_BROKER_URL = "redis://localhost:6379/0"
 ```
 
 ```python
-say_hello.delay("Sam")   # runs in the background
+say_hello.delay("Sam" , countdown=60)   # runs in the background
 ```
 
 **Exercise:** Add the signal above and create a ReadingLog in the admin. Watch for the message in the terminal. (Celery is optional here: it needs Redis and extra setup.)
