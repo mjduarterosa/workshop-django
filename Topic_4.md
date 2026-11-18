@@ -479,16 +479,16 @@ The server reloads automatically. Refresh the admin.
 
 Work through these tasks. Each one shows a different part of the admin:
 
-| Task | How | What to notice |
+| Task | How |
 |---|---|---|
-| **Add** a book | Books → **Add book** → fill in the form → **Save** | The genre is a dropdown (from `choices`). The "Details" group is collapsed |
-| **Edit** a book | Click a title in the list, change `pages`, **Save** | The change appears in the list straight away |
-| **Search** | In Books, type `tolkien` | Matches on `title` and `author` |
-| **Sort** | Click a column heading | Click again to reverse the order |
-| **Add a log** | Reading logs → **Add reading log**; pick a member and a book | The member and book use search boxes |
-| **Unique constraint** | Add a second log for the same member and book | The admin shows a friendly error instead of crashing |
-| **Inline editing** | Open a member and use the **Reading logs** table at the bottom to add a log | You manage related data without leaving the page |
-| **Delete** | Add a test member with a reading log, then delete the member | The confirmation page lists the reading logs that will also be deleted. That is `on_delete=CASCADE` in action |
+| **Add** a book | Books → **Add book** → fill in the form → **Save** | 
+| **Edit** a book | Click a title in the list, change `pages`, **Save** | 
+| **Search** | In Books, type `tolkien` | 
+| **Sort** | Click a column heading | 
+| **Add a log** | Reading logs → **Add reading log**; pick a member and a book | 
+| **Unique constraint** | Add a second log for the same member and book | 
+| **Inline editing** | Open a member and use the **Reading logs** table at the bottom to add a log | 
+| **Delete** | Add a test member with a reading log, then delete the member | 
 
 Everything you did in the admin could be done in the shell. The admin and the shell use the same ORM and the same database.
 
