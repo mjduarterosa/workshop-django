@@ -140,6 +140,11 @@ Add to `members/base.html`, the new nav bar (part of it replaces what was alread
   </nav>
 ```
 
+Finally, add the authentication url to the project `urls.py` not the app's urls:
+
+```python
+path("members/", include("django.contrib.auth.urls")),
+```
 
 **Exercise:** Protect one view with `@login_required`, then try opening it while logged out.
 
