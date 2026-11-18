@@ -41,10 +41,10 @@ def add_member(request):
         form = MemberForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("member_list")
+            return redirect("members:list")
     else:
         form = MemberForm()
-    return render(request, "add_member.html", {"form": form})
+    return render(request, "members/add_member.html", {"form": form})
 ```
 
 Add a URL for the form page:
@@ -83,12 +83,17 @@ class MemberForm(forms.ModelForm):
 Create new html template for the form:
 
 ```html
-<!-- templates/add_member.html -->
+{% extends "members/base.html" %}
+
+{% block title %}New member{% endblock %}
+
+{% block content %}
 <form method="post">
   {% csrf_token %}
   {{ form.as_p }}
   <button type="submit">Save</button>
 </form>
+{% endblock %}
 ```
 
 - `{% csrf_token %}` is required for POST forms.
