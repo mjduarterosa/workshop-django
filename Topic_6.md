@@ -178,7 +178,7 @@ class MyappConfig(AppConfig):
         from . import signals  # noqa
 ```
 
-### Celery (basic idea)
+### Celery (basic idea - do not run)
 
 Celery runs slow jobs in the background so your page doesn't wait. It needs a message broker such as Redis.
 
