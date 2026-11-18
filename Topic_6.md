@@ -249,7 +249,13 @@ say_hello.delay("Sam" , countdown=60)   # runs in the background
 
 ## D. Using Django's caching framework
 
-Caching stores results so Django doesn't have to compute them again.
+Caching stores results so Django doesn't have to compute them again. Some work is slow or repeated: a database query that counts thousands of rows, a page built from many queries, a call to an outside API. Caching saves the result in fast storage the first time. Later requests read the saved copy instead of repeating the work.
+
+First request  → compute result (slow) → save it in the cache → return it
+Next requests  → found in the cache (fast) → return it
+After timeout  → cache entry expires → next request computes it again
+
+The tradeoff is that cached data can be stale. If a member is added during the timeout window, a cached count won’t show it until the entry expires or you delete it.
 
 **Settings (simple in-memory cache):**
 
@@ -263,15 +269,22 @@ CACHES = {
 
 **Cache a whole view for 5 minutes:**
 
-```python
-from django.views.decorators.cache import cache_page
+We could cache the members list view for 60 seconds:
 
-@cache_page(60 * 5)
-def book_list(request):
+```python
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+...
+
+@method_decorator(cache_page(60), name="dispatch")
+class MemberListView(LoginRequiredMixin, ListView):
+    model = Member
     ...
 ```
 
 **Cache a single value by hand:**
+
+Add cache and play with it using the shell:
 
 ```python
 from django.core.cache import cache
@@ -282,7 +295,7 @@ if count is None:
     cache.set("member_count", count, 60)   # keep for 60 seconds
 ```
 
-**Task:** Cache `Member.objects.count()` for 60 seconds, add a member, and see when the number updates.
+**Exercise:** Cache `Member.objects.count()` for 60 seconds, add a member, and see when the number updates.
 
 ---
 
