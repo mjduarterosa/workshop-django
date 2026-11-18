@@ -5,7 +5,7 @@
 | A | Working with Django forms | 
 | B | Validating user input | 
 | C | Rendering forms in templates | 
-| D | Customizing form behavior and appearance | 
+| D | Customizing form behaviour and appearance | 
 
 Examples use the `Member` model from your project. Create `forms.py` in your app folder.
 
