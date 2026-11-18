@@ -1,10 +1,17 @@
 # VI. Advanced Django Features (2 hours)
 
+| Section | Topic |
+|---|---|
+| A | Django middleware and how it works | 
+| B | Customizing authentication and authorization | 
+| C | Working with Django signals and Celery tasks | 
+| D | Using Django's caching framework | 
+
 Examples use the `Member` and `ReadingLog` models from your project.
 
 ---
 
-## A. Django middleware and how it works (30 min)
+## A. Django middleware and how it works
 
 Middleware is code that runs on every request and response, before and after your views.
 
@@ -36,7 +43,7 @@ MIDDLEWARE = [
 
 ---
 
-## B. Customizing authentication and authorization (30 min)
+## B. Customizing authentication and authorization
 
 **Require login for a view:**
 
@@ -79,7 +86,7 @@ def add_member(request):
 
 ---
 
-## C. Working with Django signals and Celery tasks (30 min)
+## C. Working with Django signals and Celery tasks
 
 ### Signals
 
@@ -132,7 +139,7 @@ say_hello.delay("Sam")   # runs in the background
 
 ---
 
-## D. Using Django's caching framework (30 min)
+## D. Using Django's caching framework
 
 Caching stores results so Django doesn't have to compute them again.
 
