@@ -140,14 +140,13 @@ Reload the app after any change.
 
 PythonAnywhere's free tier has limits (such as restricted outbound internet access and a requirement to periodically extend the app), so check their help pages for current details.
 
-**Task:** Run `python manage.py check --deploy` and fix one warning.
+**Exercise:** Run `python manage.py check --deploy` and fix one warning.
 
 ---
 
 ## Quick checklist
 
-- [ ] Code on GitHub/GitLab, `requirements.txt` present
+- [ ] Code on GitHub, `requirements.txt` present
 - [ ] App deployed and reachable in the browser
 - [ ] `DEBUG = False`, `ALLOWED_HOSTS` set, secret key kept out of git
 - [ ] Static files collected and mapped
-- [ ] A backup made with `dumpdata`
