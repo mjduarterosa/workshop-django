@@ -7,7 +7,7 @@
 | C | Configuring Django for production use | 
 | D | Best practices for deploying and maintaining a Django application | 
 
-The hands-on parts use **PythonAnywhere**, a beginner-friendly host with a free tier.
+In this part we use **PythonAnywhere**, a beginner-friendly host with a free tier.
 
 ---
 
@@ -21,8 +21,6 @@ The hands-on parts use **PythonAnywhere**, a beginner-friendly host with a free 
 | **Docker + cloud (AWS, GCP, Azure)** | Large or team projects | High |
 
 A production setup usually has: a **web server** (Gunicorn or uWSGI) running Django, a **reverse proxy** (Nginx) serving static files, and a **real database** (PostgreSQL) instead of SQLite. PythonAnywhere handles the web server and proxy for you.
-
-**Task:** Write one sentence on why PythonAnywhere fits your project.
 
 ---
 
