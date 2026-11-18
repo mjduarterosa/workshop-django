@@ -39,11 +39,15 @@ MIDDLEWARE = [
 
 - Middleware runs top to bottom on the way in, and bottom to top on the way out.
 
-**Task:** Add the middleware, run the server, open a page, and watch the terminal output.
+Add the middleware, run the server, open a page, and watch the terminal output.
+
+**Exercise:** add middleware functionality to allow only admin or an authorised user to access the site by logging in.
 
 ---
 
 ## B. Customizing authentication and authorization
+
+Instead of requiring a log in to the entire site, we would like to add a log in to certain views. For example:
 
 **Require login for a view:**
 
@@ -51,7 +55,7 @@ MIDDLEWARE = [
 from django.contrib.auth.decorators import login_required
 
 @login_required
-def member_list(request):
+def add_member(request):
     ...
 ```
 
@@ -59,15 +63,31 @@ Set where users get sent to log in:
 
 ```python
 # settings.py
-LOGIN_URL = "/accounts/login/"
+LOGIN_URL = "/members/login/"
+```
+
+For class views include a mixin to get the same behaviour, for example:
+
+```python
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class MemberListView(LoginRequiredMixin,, ListView):
+    model = Member
+    ...
+
+class MemberDetailView(LoginRequiredMixin, DetailView):
+    model = Member
+    ...
 ```
 
 **Require a permission:**
 
+Instead of any user being able to log in and add a new member we might want to grant only authorised users the option of adding a new member. To do this, add the following decorator instead:
+
 ```python
 from django.contrib.auth.decorators import permission_required
 
-@permission_required("myapp.add_member", raise_exception=True)
+@permission_required("members.add_member", raise_exception=True)
 def add_member(request):
     ...
 ```
