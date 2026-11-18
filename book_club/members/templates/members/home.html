@@ -7,5 +7,5 @@
   <p>{{ banner|safe }}</p>
   <p>We have {{ member_count }} member{{ member_count|pluralize }}.</p>
 
-  <p><a href="{% url 'members:list' %}">See all members</a></p>
+  <p><a href="{% url 'members:add_member' %}">Add new member</a></p>
 {% endblock %}
