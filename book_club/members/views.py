@@ -1,7 +1,18 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404
 from .models import Member
 from django.views.generic import DetailView, ListView, TemplateView
+from .forms import MemberForm
+
+def add_member(request):
+    if request.method == "POST":
+        form = MemberForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("members:list")
+    else:
+        form = MemberForm()
+    return render(request, "members/add_member.html", {"form": form})
 
 
 class MemberListView(ListView):
