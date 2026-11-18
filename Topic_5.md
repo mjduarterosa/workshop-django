@@ -47,8 +47,11 @@ def add_member(request):
     return render(request, "add_member.html", {"form": form})
 ```
 
-**Task:** Create `MemberForm`, the `add_member` view, and a URL for it.
+Add a URL for the form page:
 
+```python
+path("members/add/", views.add_member, name="add_member")
+```
 ---
 
 ## B. Validating user input
