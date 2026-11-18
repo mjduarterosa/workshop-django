@@ -421,26 +421,27 @@ The plain registration works, but a `ModelAdmin` class gives you control. Replac
 
 ```python
 from django.contrib import admin
-from django.db.models import Avg
-
-from .models import Book, Member, ReadingLog
-
-admin.site.site_header = "Book Club Administration"
-admin.site.site_title = "Book Club Admin"
-admin.site.index_title = "Manage the club"
+from .models import Member, Book, ReadingLog
 
 
 class ReadingLogInline(admin.TabularInline):
     model = ReadingLog
     extra = 1
+    autocomplete_fields = ["book"]
+
+
+@admin.register(Book)
+class BookAdmin(admin.ModelAdmin):
+    list_display = ("title", "author", "pages", "published_year")
+    search_fields = ("title", "author")
 
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "favorite_book", "joined", "books_read")
-    search_fields = ("name", "email")
-    list_filter = ("joined",)
-    date_hierarchy = "joined"
+    list_display = ("firstname", "lastname", "email", "joined_date", "books_read")
+    search_fields = ("firstname", "lastname", "email", "phone")
+    list_filter = ("joined_date",)
+    date_hierarchy = "joined_date"
     inlines = [ReadingLogInline]
 
     @admin.display(description="Books read")
@@ -448,38 +449,13 @@ class MemberAdmin(admin.ModelAdmin):
         return obj.readings.count()
 
 
-@admin.register(Book)
-class BookAdmin(admin.ModelAdmin):
-    list_display = ("title", "author", "genre", "pages", "published_year", "average_rating")
-    list_filter = ("genre",)
-    search_fields = ("title", "author")
-    ordering = ("title",)
-    fieldsets = (
-        (None, {"fields": ("title", "author", "genre")}),
-        ("Details", {"fields": ("pages", "published_year", "isbn"), "classes": ("collapse",)}),
-    )
-    inlines = [ReadingLogInline]
-
-    @admin.display(description="Avg rating")
-    def average_rating(self, obj):
-        result = obj.readings.aggregate(avg=Avg("rating"))["avg"]
-        return round(result, 1) if result else "-"
-
-
 @admin.register(ReadingLog)
 class ReadingLogAdmin(admin.ModelAdmin):
-    list_display = ("member", "book", "date_finished", "rating", "would_recommend")
-    list_filter = ("rating", "would_recommend", "date_finished")
-    search_fields = ("member__name", "book__title")
-    list_editable = ("rating", "would_recommend")
+    list_display = ("member", "book", "date_finished")
+    list_filter = ("date_finished",)
+    search_fields = ("member__firstname", "member__lastname", "book__title")
     autocomplete_fields = ("member", "book")
     date_hierarchy = "date_finished"
-    actions = ["mark_recommended"]
-
-    @admin.action(description="Mark selected readings as recommended")
-    def mark_recommended(self, request, queryset):
-        updated = queryset.update(would_recommend=True)
-        self.message_user(request, f"{updated} reading(s) marked as recommended.")
 ```
 
 The server reloads automatically. Refresh the admin.
@@ -489,7 +465,7 @@ The server reloads automatically. Refresh the admin.
 | Setting | Effect |
 |---|---|
 | `list_display` | The columns in the list page. It can include methods, like `books_read` |
-| `search_fields` | Adds a search box. `member__name` searches across a relationship |
+| `search_fields` | Adds a search box. `member__firstname` searches across a relationship |
 | `list_filter` | Adds a filter sidebar |
 | `date_hierarchy` | Adds date drill-down links at the top of the list |
 | `list_editable` | Lets you edit fields directly in the list and save them all at once |
@@ -497,7 +473,6 @@ The server reloads automatically. Refresh the admin.
 | `fieldsets` | Groups the fields on the edit form. `collapse` hides a group until clicked |
 | `inlines` | Shows related rows on the same page, so you can add a member's reading logs on the member page |
 | `autocomplete_fields` | Replaces a long dropdown with a search-as-you-type box |
-| `actions` | Adds your own bulk action to the "Action" menu |
 | `@admin.display` | Gives a method a readable column title |
 
 ### 5. Manipulate data from the admin
@@ -509,29 +484,15 @@ Work through these tasks. Each one shows a different part of the admin:
 | **Add** a book | Books → **Add book** → fill in the form → **Save** | The genre is a dropdown (from `choices`). The "Details" group is collapsed |
 | **Edit** a book | Click a title in the list, change `pages`, **Save** | The change appears in the list straight away |
 | **Search** | In Books, type `tolkien` | Matches on `title` and `author` |
-| **Filter** | In Books, click **Fantasy** in the sidebar | The list shrinks to matching rows |
 | **Sort** | Click a column heading | Click again to reverse the order |
 | **Add a log** | Reading logs → **Add reading log**; pick a member and a book | The member and book use search boxes |
-| **Validation** | Enter a rating of `7` and save | The admin shows "Ensure this value is less than or equal to 5". Validators run here, unlike in `save()` |
 | **Unique constraint** | Add a second log for the same member and book | The admin shows a friendly error instead of crashing |
-| **Edit in the list** | In Reading logs, change a rating or tick **Would recommend** in the list, then **Save** | Several rows are updated at once |
 | **Inline editing** | Open a member and use the **Reading logs** table at the bottom to add a log | You manage related data without leaving the page |
-| **Bulk action** | In Reading logs, tick several rows, choose **Mark selected readings as recommended**, then **Go** | A message reports how many rows changed |
-| **History** | Open any object and click **History** | Django records who changed what, and when |
 | **Delete** | Add a test member with a reading log, then delete the member | The confirmation page lists the reading logs that will also be deleted. That is `on_delete=CASCADE` in action |
 
-### 6. Compare with the shell
+Everything you did in the admin could be done in the shell. The admin and the shell use the same ORM and the same database.
 
-Everything you did in the admin could be done in the shell. Try this in `python manage.py shell` to see your admin edits:
-
-```python
-from members.models import ReadingLog
-ReadingLog.objects.filter(would_recommend=True).count()
-```
-
-The admin and the shell use the same ORM and the same database.
-
-### 7. Where the admin fits
+### 6. Where the admin fits
 
 The admin is built for the **site owner**, not for the public. It is quick for managing data, adding test content and fixing mistakes. For pages your members use, you write your own views and templates, as in the earlier parts.
 
@@ -539,40 +500,3 @@ The admin is built for the **site owner**, not for the public. It is quick for m
 
 - [ ] You can log in to `/admin/` and see Books, Members and Reading logs
 - [ ] You added a book and a reading log from the admin
-- [ ] An invalid rating or a duplicate log is rejected with a message
-- [ ] You ran the bulk action and saw the success message
-
-### Exercise
-
-On the member detail page, show the books that member has read. In the `members/member_detail.html` template, use the reverse relationship. Hint:
-
-```html
-<h2>Books read</h2>
-<ul>
-  {% for reading in member.readings.all %}
-    <li>{{ reading.book.title }} ({{ reading.rating|default:"-" }}/5)</li>
-  {% empty %}
-    <li>No books logged yet.</li>
-  {% endfor %}
-</ul>
-```
-
----
-
-## Troubleshooting
-
-| Problem | Fix |
-|---|---|
-| `no such table: members_book` | Run `python manage.py makemigrations members`, then `python manage.py migrate` |
-| `makemigrations` says "No changes detected" | Save `models.py`, and check `"members"` is in `INSTALLED_APPS` |
-| The red "unapplied migration(s)" warning | Run `python manage.py migrate` |
-| `IntegrityError: UNIQUE constraint failed` | You created a duplicate (same email, same title and author, or same member and book) |
-| `IntegrityError: NOT NULL constraint failed` | A required field has no value. Pass it, or give the field a `default`, or `null=True` |
-| `Book matching query does not exist` | The title in `get()` is misspelled, or the book does not exist yet |
-| `Cannot assign "1": must be a "Member" instance` | Pass the object (`member=alice`) and not an id. To use an id, write `member_id=1` |
-| `You are trying to add a non-nullable field...` | Choose option 2, then add `default=...`, `blank=True` or `null=True` to the field |
-| A model is missing from the admin | Register it in `members/admin.py` and save the file |
-| `admin.E108` or `admin.E116` errors | A name in `list_display`, `list_filter` or `search_fields` does not exist on the model. Check spelling |
-| `CSRF verification failed` on admin login (Codespaces) | Add the `CSRF_TRUSTED_ORIGINS` block from the Part II setup and restart the server |
-| `InconsistentMigrationHistory` | In development only: delete `db.sqlite3` and run `python manage.py migrate` (this loses your data) |
-| Lost your superuser after resetting the database | Run `python manage.py createsuperuser` again |
