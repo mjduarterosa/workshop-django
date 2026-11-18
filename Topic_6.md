@@ -180,15 +180,19 @@ def log_new_reading(sender, instance, created, **kwargs):
         print(f"New reading saved: {instance}")
 ```
 
-Load the signals in `apps.py`:
+No all we need to do is load signals from `members/apps.py`:
 
 ```python
-class MyappConfig(AppConfig):
-    name = "myapp"
+from django.apps import AppConfig
+
+class MembersConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "members"
 
     def ready(self):
-        from . import signals  # noqa
+        from . import signals 
 ```
+To test it, create a new reading log entry and check the terminal. You will see the output of print(f"New reading saved: {instance}").
 
 Instead of printing, a receiver can do useful work, such as sending a welcome email when a Member is created.
 
