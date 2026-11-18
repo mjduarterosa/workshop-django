@@ -136,6 +136,11 @@ class MemberForm(forms.ModelForm):
 **Exercise:** Give `joined_date` a date picker widget and add a CSS class to one field.
 
 ---
+Finally, replace the link on the `members/home.html` page to see all members by the link to add a new member:
+
+```html
+<p><a href="{% url 'members:add_member' %}">Add new member</a></p>
+```
 
 ## Quick checklist
 
