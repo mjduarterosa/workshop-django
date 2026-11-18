@@ -74,11 +74,13 @@ class MemberForm(forms.ModelForm):
 - Use `self.cleaned_data` to read validated values.
 - Errors are stored in `form.errors` and shown in the template.
 
-**Task:** Add a `clean_firstname` that rejects names shorter than 2 characters.
+**Exercise:** Add a `clean_phone` that rejects phones that do not start with 9 and do not contain 9 digits.
 
 ---
 
 ## C. Rendering forms in templates
+
+Create new html template for the form:
 
 ```html
 <!-- templates/add_member.html -->
