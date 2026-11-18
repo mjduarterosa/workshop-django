@@ -13,10 +13,10 @@ Examples use the `Member` and `ReadingLog` models from your project.
 
 ## A. Django middleware and how it works
 
-Middleware is code that runs on every request and response, before and after your views.
+Middleware is code that runs on every request and response, before and after your views. To illustrate how middleware works, create the following file with the class:
 
 ```python
-# myapp/middleware.py
+# members/middleware.py
 class SimpleLogMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -33,7 +33,7 @@ Register it in `settings.py`:
 ```python
 MIDDLEWARE = [
     # ... existing middleware ...
-    "myapp.middleware.SimpleLogMiddleware",
+    "members.middleware.SimpleLogMiddleware",
 ]
 ```
 
