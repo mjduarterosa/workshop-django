@@ -154,10 +154,22 @@ path("members/", include("django.contrib.auth.urls")),
 
 ### Signals
 
-Signals run code automatically when something happens, such as a model being saved.
+A signal lets one part of your code announce “something just happened,” and lets other code react without the original code knowing about it. Django sends signals for many events, such as a model being saved, deleted, or a user logging in. You write a small function (a receiver) and attach it to a signal. Django calls it every time that event occurs.
+
+The flow looks like this:
+
+You save a ReadingLog (admin, form, shell, anywhere)
+        ↓
+Django finishes saving it, then fires the post_save signal
+        ↓
+Your receiver function runs automatically
+
+The code that saves the ReadingLog doesn’t need any changes. That’s the main appeal.
+
+Create new `members/signals.py` file with:
 
 ```python
-# myapp/signals.py
+# members/signals.py
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import ReadingLog
@@ -177,6 +189,8 @@ class MyappConfig(AppConfig):
     def ready(self):
         from . import signals  # noqa
 ```
+
+Instead of printing, a receiver can do useful work, such as sending a welcome email when a Member is created.
 
 ### Celery (basic idea - do not run)
 
