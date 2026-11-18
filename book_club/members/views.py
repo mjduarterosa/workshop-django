@@ -3,7 +3,11 @@ from django.http import HttpResponse, Http404
 from .models import Member
 from django.views.generic import DetailView, ListView, TemplateView
 from .forms import MemberForm
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
+@login_required
+@permission_required("members.add_member", raise_exception=True)
 def add_member(request):
     if request.method == "POST":
         form = MemberForm(request.POST)
@@ -15,13 +19,13 @@ def add_member(request):
     return render(request, "members/add_member.html", {"form": form})
 
 
-class MemberListView(ListView):
+class MemberListView(LoginRequiredMixin, ListView):
     model = Member
     template_name = "members/member_list.html"
     context_object_name = "members"
 
 
-class MemberDetailView(DetailView):
+class MemberDetailView(LoginRequiredMixin, DetailView):
     model = Member
     template_name = "members/member_detail.html"
     context_object_name = "member"
