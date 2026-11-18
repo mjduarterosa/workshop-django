@@ -10,6 +10,7 @@ urlpatterns = [
     path("people/", RedirectView.as_view(pattern_name="members:list"), name="people"),
     path("members/", views.MemberListView.as_view(), name="list"),
     path("members/<int:pk>/", views.MemberDetailView.as_view(), name="detail"),
+    path("members/add/", views.add_member, name="add_member"),
     # path("members/", views.member_list, name="list"),
     # path("members/<int:member_id>", views.member_detail, name="detail"),
     path("hello/<str:name>/", views.hello, name="hello"),
