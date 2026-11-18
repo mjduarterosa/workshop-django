@@ -58,14 +58,6 @@ from django.contrib.auth.decorators import login_required
 def add_member(request):
     ...
 ```
-
-Set where users get sent to log in:
-
-```python
-# settings.py
-LOGIN_URL = "/members/login/"
-```
-
 For class views include a mixin to get the same behaviour, for example:
 
 ```python
@@ -80,6 +72,15 @@ class MemberDetailView(LoginRequiredMixin, DetailView):
     ...
 ```
 
+Set where users get sent to log in and log out:
+
+```python
+# settings.py
+LOGIN_URL = "/members/login/"
+LOGIN_REDIRECT_URL = "/members/"   # where to go after logging in
+LOGOUT_REDIRECT_URL = "/members/login/"
+```
+
 **Require a permission:**
 
 Instead of any user being able to log in and add a new member we might want to grant only authorised users the option of adding a new member. To do this, add the following decorator instead:
@@ -87,6 +88,7 @@ Instead of any user being able to log in and add a new member we might want to g
 ```python
 from django.contrib.auth.decorators import permission_required
 
+@login_required
 @permission_required("members.add_member", raise_exception=True)
 def add_member(request):
     ...
@@ -94,15 +96,52 @@ def add_member(request):
 
 **Check in a template:**
 
+Now add the log in and log out button to the base template and also the new log in template.
+
+Create a new html template inside the templates folder in a new `registration` folder:
+
 ```html
-{% if user.is_authenticated %}
-  Hello, {{ user.username }}
-{% else %}
-  <a href="{% url 'login' %}">Log in</a>
-{% endif %}
+{% extends "members/base.html" %}
+
+{% block content %}
+  <h1>Log in</h1>
+
+  {% if form.errors %}
+    <p>Your username and password didn't match. Please try again.</p>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Log in</button>
+  </form>
+{% endblock %}
 ```
 
-**Task:** Protect one view with `@login_required`, then try opening it while logged out.
+Add to `members/base.html`, the new nav bar (part of it replaces what was already there):
+
+```html
+  <nav>
+    <a href="{% url 'members:home' %}" class="brand">
+      <img src="{% static 'members/images/logo.svg' %}" alt="" class="logo">
+      Book Club
+    </a>
+    <a href="{% url 'members:list' %}">Members</a>
+    <a href="{% url 'members:about' %}">About</a>
+    {% if user.is_authenticated %}
+        <span style="color: white;">Hello, {{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit">Log out</button>
+        </form>
+    {% else %}
+        <a href="{% url 'login' %}">Log in</a>
+    {% endif %} 
+  </nav>
+```
+
+
+**Exercise:** Protect one view with `@login_required`, then try opening it while logged out.
 
 ---
 
