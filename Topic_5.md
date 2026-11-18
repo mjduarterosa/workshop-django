@@ -114,7 +114,7 @@ Render fields manually for more control:
 
 ---
 
-## D. Customizing form behavior and appearance
+## D. Customizing form behaviour and appearance
 
 Change widgets, labels, and help text:
 
@@ -131,10 +131,9 @@ class MemberForm(forms.ModelForm):
         }
 ```
 
-- `attrs` adds HTML attributes (CSS classes, placeholders).
 - To make a field optional or required, set `required=False` or `True` on a regular `forms.Form` field.
 
-**Task:** Give `joined_date` a date picker widget and add a CSS class to one field.
+**Exercise:** Give `joined_date` a date picker widget and add a CSS class to one field.
 
 ---
 
