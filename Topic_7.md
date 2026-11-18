@@ -1,10 +1,17 @@
 # VII. Deployment and Production (2 hours)
 
+| Section | Topic |
+|---|---|
+| A | Overview of Django deployment options | 
+| B | Deploying Django to a production server | 
+| C | Configuring Django for production use | 
+| D | Best practices for deploying and maintaining a Django application | 
+
 The hands-on parts use **PythonAnywhere**, a beginner-friendly host with a free tier.
 
 ---
 
-## A. Overview of Django deployment options (20 min)
+## A. Overview of Django deployment options
 
 | Option | Good for | Effort |
 |---|---|---|
@@ -19,7 +26,7 @@ A production setup usually has: a **web server** (Gunicorn or uWSGI) running Dja
 
 ---
 
-## B. Deploying Django to a production server (40 min)
+## B. Deploying Django to a production server
 
 **1. Push your code to GitHub or GitLab**, then sign up at pythonanywhere.com.
 
@@ -74,7 +81,7 @@ python manage.py createsuperuser
 
 ---
 
-## C. Configuring Django for production use (30 min)
+## C. Configuring Django for production use
 
 In `settings.py`:
 
@@ -115,7 +122,7 @@ Reload the app after any change.
 
 ---
 
-## D. Best practices for deploying and maintaining a Django application (30 min)
+## D. Best practices for deploying and maintaining a Django application
 
 - **Run the deployment check:** `python manage.py check --deploy` lists security warnings to fix.
 - **Never commit secrets or `db.sqlite3`.** Add both to `.gitignore`.
