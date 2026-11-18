@@ -187,7 +187,7 @@ pip install celery redis
 ```
 
 ```python
-# myapp/tasks.py
+# members/tasks.py
 from celery import shared_task
 
 @shared_task
@@ -195,11 +195,32 @@ def say_hello(name):
     return f"Hello, {name}!"
 ```
 
+Also create a `celery.py` file:
+
+```python
+# book_club/celery.py
+import os
+from celery import Celery
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "book_club.settings")
+app = Celery("book_club")
+app.config_from_object("django.conf:settings", namespace="CELERY")
+app.autodiscover_tasks()
+```
+
+And the following:
+
+```python
+# book_club/__init__.py
+from .celery import app as celery_app
+__all__ = ("celery_app",)
+```
+
 ```python
 say_hello.delay("Sam")   # runs in the background
 ```
 
-**Task:** Add the signal above and create a ReadingLog in the admin. Watch for the message in the terminal. (Celery is optional here: it needs Redis and extra setup.)
+**Exercise:** Add the signal above and create a ReadingLog in the admin. Watch for the message in the terminal. (Celery is optional here: it needs Redis and extra setup.)
 
 ---
 
