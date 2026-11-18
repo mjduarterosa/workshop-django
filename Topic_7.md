@@ -114,6 +114,11 @@ Set the secret key by adding this line to the top of your WSGI file:
 os.environ["DJANGO_SECRET_KEY"] = "put-a-long-random-string-here"
 ```
 
+If you need to generate a new key use the following command in the bash terminal:
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
 Reload the app after any change.
 
 **Task:** Turn `DEBUG` off, run `collectstatic`, and confirm the admin page still has its styling.
