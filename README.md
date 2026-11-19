@@ -1,5 +1,16 @@
-# workshop-django
-Workshop de Introdução ao Django
+# Django Workshop
+Workshop de Introdução ao Django.
+
+#### Prerequisites:
+- Prior experience of Python
+- Technical English
+- Web Development basics
+- HTML + JS + CSS background
+- Basic understanding of Django Framework
+
+#### Course format:
+ 80% practice
+ 20% theory
 
 ## Structure of the workshop:
 
