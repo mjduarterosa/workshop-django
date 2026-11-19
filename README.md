@@ -9,8 +9,8 @@ Workshop de Introdução ao Django.
 - Basic understanding of Django Framework
 
 #### Course format:
- 80% practice
- 20% theory
+- 80% practice
+- 20% theory
 
 ## Structure of the workshop:
 
