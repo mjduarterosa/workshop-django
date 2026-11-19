@@ -1,5 +1,11 @@
 # I. Introduction to Django (1 hour)
 
+| Section | Topic |
+|---|---|
+| A | Overview of the Django framework |
+| B | Installing and setting up Django |
+| C | Creating a Django project and application |
+
 ## A. Overview of the Django framework
 
 See slides.
