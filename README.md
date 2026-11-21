@@ -1,5 +1,5 @@
 # Django Workshop
-Workshop de Introdução ao Django por Maria Rosa.
+Workshop de Introdução ao Django por Maria J. Duarte Rosa.
 
 #### Prerequisites:
 - Prior experience of Python
