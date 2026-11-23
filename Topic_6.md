@@ -13,7 +13,64 @@ Examples use the `Member` and `ReadingLog` models from your project.
 
 ## A. Django middleware and how it works
 
-Middleware is code that runs on every request and response, before and after your views. To illustrate how middleware works, create the following file with the class:
+### What is middleware?
+
+Middleware is a layer of code that sits between the web server and your views. Every request passes through it on the way in, and every response passes through it again on the way out.
+
+Browser
+   │  request                                     ▲  response
+   ▼                                              │
+┌─────────────────────────────────────────────────────┐
+│ Middleware 1  (for example SecurityMiddleware)      │
+│  ┌───────────────────────────────────────────────┐  │
+│  │ Middleware 2  (for example SessionMiddleware) │  │
+│  │  ┌─────────────────────────────────────────┐  │  │
+│  │  │ Middleware 3 ...                        │  │  │
+│  │  │         ┌──────────────┐                │  │  │
+│  │  │         │     View     │                │  │  │
+│  │  │         └──────────────┘                │  │  │
+│  │  └─────────────────────────────────────────┘  │  │
+│  └───────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────┘
+
+Middleware is the right place for work that applies to every request, such as:
+
+- handling logins
+- adding security headers
+- logging and timing requests
+- redirecting or blocking certain requests
+
+You have already been using it. Open book_club/settings.py and find the MIDDLEWARE list. It looks like this:
+
+```python
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+```
+### Anatomy of a middleware
+
+A middleware is a class with two methods:
+
+```python
+class ExampleMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response      # runs once, when the server starts
+
+    def __call__(self, request):
+        # 1. Code here runs BEFORE the view (and before any middleware below it)
+        response = self.get_response(request) # pass the request on
+
+        # 2. Code here runs AFTER the view, on the way back out
+        return response
+```
+
+To illustrate how middleware works, create the following class inside `members/middleware.py`:
 
 ```python
 # members/middleware.py
@@ -37,9 +94,24 @@ MIDDLEWARE = [
 ]
 ```
 
-- Middleware runs top to bottom on the way in, and bottom to top on the way out.
+Middleware runs top to bottom on the way in, and bottom to top on the way out. Add the middleware, run the server, open a page, and watch the terminal output.
 
-Add the middleware, run the server, open a page, and watch the terminal output.
+### Another Example: timing every request in the members app
+
+We can build a middleware that measures how long each request takes. It prints the time in the terminal and adds a header to the response, which is handy when you are looking for slow pages:
+
+1. Create a new class in `members/middleware.py` called RequestTimingMiddleware.
+2. Add the following code to run before the view:
+```python
+start = time.perf_counter()
+```
+3. Add the following code to run after the view:
+```python
+duration_ms = (time.perf_counter() - start) * 1000
+response["X-Response-Time-ms"] = f"{duration_ms:.1f}"
+print(f"{request.method} {request.path} took {duration_ms:.1f} ms")
+```
+Now rerun the server and check what happens when you navigate the site.
 
 **Exercise:** add middleware functionality to allow only admin or an authorised user to access the site by logging in.
 
