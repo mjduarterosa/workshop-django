@@ -40,6 +40,7 @@ Middleware is the right place for work that applies to every request, such as:
 - adding security headers
 - logging and timing requests
 - redirecting or blocking certain requests
+- blocking the views during maintenance
 
 You have already been using it. Open book_club/settings.py and find the MIDDLEWARE list. It looks like this:
 
@@ -112,9 +113,35 @@ duration_ms = (time.perf_counter() - start) * 1000
 response["X-Response-Time-ms"] = f"{duration_ms:.1f}"
 print(f"{request.method} {request.path} took {duration_ms:.1f} ms")
 ```
-Now rerun the server and check what happens when you navigate the site.
+Register this new middleware. Now rerun the server and check what happens when you navigate the site.
 
-**Exercise:** add middleware functionality to allow only admin or an authorised user to access the site by logging in.
+## Exercise: count page views per visitor
+
+Write a third middleware, `PageViewCounterMiddleware`, that counts how many pages each visitor has viewed during their session. Then show the count in the footer of your site.
+
+**Steps**
+
+1. In `members/middleware.py`, add a new class with the same structure as the ones above.
+2. Before calling `get_response`, increase a counter stored in the session:
+
+```python
+request.session["page_views"] = request.session.get("page_views", 0) + 1
+```
+
+3. Register it in `MIDDLEWARE`. **Think about the order:** it uses `request.session`, so it must come **after** `SessionMiddleware`.
+4. Show the number in the footer of `members/templates/members/base.html`:
+
+```html
+<p>Pages viewed this session: {{ request.session.page_views }}</p>
+```
+
+5. Refresh the page several times and watch the number grow.
+
+**Questions to think about**
+
+- What happens if you put your middleware **above** `SessionMiddleware`? Try it and read the error.
+- The count also goes up for static files such as the CSS file. How could you skip requests whose path starts with `/static/`? (Hint: `request.path.startswith(...)`.)
+- Why is the counter increased *before* `get_response` and not after?
 
 ---
 
