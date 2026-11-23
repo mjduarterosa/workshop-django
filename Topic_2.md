@@ -167,6 +167,12 @@ Useful attributes: `request.method`, `request.path`, `request.GET` (query string
 
 Create the folders and the base template at `members/templates/members/base.html`. The folder name `members` appears twice on purpose. It stops template names clashing between apps.
 
+Don't forget to add the app_name to `members/urls.py` first, so that we can create a namespace for the urls of our app:
+
+```python
+app_name = 'members'
+```
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
