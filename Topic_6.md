@@ -17,6 +17,7 @@ Examples use the `Member` and `ReadingLog` models from your project.
 
 Middleware is a layer of code that sits between the web server and your views. Every request passes through it on the way in, and every response passes through it again on the way out.
 
+```
 Browser
    │  request                                     ▲  response
    ▼                                              │
@@ -32,7 +33,7 @@ Browser
 │  │  └─────────────────────────────────────────┘  │  │
 │  └───────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────┘
-
+```
 Middleware is the right place for work that applies to every request, such as:
 
 - handling logins
