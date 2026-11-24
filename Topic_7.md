@@ -20,8 +20,13 @@ In this part we use **PythonAnywhere**, a beginner-friendly host with a free tie
 | **VPS (DigitalOcean, Hetzner)** | Full control | High |
 | **Docker + cloud (AWS, GCP, Azure)** | Large or team projects | High |
 
-A production setup usually has: a **web server** (Gunicorn or uWSGI) running Django, a **reverse proxy** (Nginx) serving static files, and a **real database** (PostgreSQL) instead of SQLite. PythonAnywhere handles the web server and proxy for you.
+A production setup usually has:
 
+Browser ──► Nginx ──► Gunicorn ──► Django (your views)
+              │                        │
+              │                        └─ WhiteNoise serves /static/ files
+              └─ handles HTTPS, buffering, (optionally) static and media files
+              
 ---
 
 ## B. Deploying Django to a production server
