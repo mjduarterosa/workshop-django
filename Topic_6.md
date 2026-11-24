@@ -366,6 +366,8 @@ The tradeoff is that cached data can be stale. If a member is added during the t
 
 **Settings (simple in-memory cache):**
 
+To operate a caching feature we need to add a cache to the settings file. We can use a small one available from Django just to test how this feature works. Add the following lines to `book_club/settings.py`:
+
 ```python
 CACHES = {
     "default": {
@@ -374,9 +376,9 @@ CACHES = {
 }
 ```
 
-**Cache a whole view for 5 minutes:**
+**Cache a whole view for 60 seconds:**
 
-We could cache the members list view for 60 seconds:
+One thing we could cache in our members application is the members list. We don't have many members but assuming the list could be very long, we could potentially cache it for a given amount of time. For example, we could cache the list view for 60 seconds by adding a decorator to the respective view:
 
 ```python
 from django.utils.decorators import method_decorator
@@ -389,26 +391,84 @@ class MemberListView(LoginRequiredMixin, ListView):
     ...
 ```
 
-**Cache a single value by hand:**
+### Caching a single value
 
-Add cache and play with it using the shell:
+Caching a whole page is not always what you want. Sometimes only one value is slow to compute, such as a count or an average. For this, you store the value yourself and follow a simple pattern:
+
+1. Look in the cache.
+2. If the value is there (a **hit**), use it.
+3. If not (a **miss**), compute it, store it with an expiry time, and use it.
+
+Create `members/utils.py`:
 
 ```python
 from django.core.cache import cache
 
-count = cache.get("member_count")
-if count is None:
-    count = Member.objects.count()
-    cache.set("member_count", count, 60)   # keep for 60 seconds
+from .models import Member
+
+
+def get_member_count():
+    count = cache.get("member_count")
+    if count is None:                                  # cache miss
+        count = Member.objects.count()
+        cache.set("member_count", count, timeout=60)   # keep it for 60 seconds
+    return count
 ```
 
-**Exercise:** Cache `Member.objects.count()` for 60 seconds, add a member, and see when the number updates.
+Django also offers a shortcut for the same pattern:
+
+```python
+cache.get_or_set("member_count", Member.objects.count, timeout=60)
+```
+
+#### Try it in the shell
+
+```bash
+python manage.py shell
+```
+
+```python
+from django.core.cache import cache
+from members.models import Member
+from members.utils import get_member_count
+
+get_member_count()                  # 4   (miss: read from the database and cached)
+get_member_count()                  # 4   (hit: no database query)
+
+Member.objects.create(name="Test Person", email="test@example.com")
+Member.objects.count()              # 5   (the database is up to date)
+get_member_count()                  # 4   (still the cached, now outdated, value)
+
+cache.delete("member_count")        # remove the cached value by hand
+get_member_count()                  # 5   (miss again: fresh count)
+```
+
+The cached number stays outdated until it **expires** (after 60 seconds) or you **delete** it. This is the main trade-off of caching: faster answers, but possibly stale data.
+
+Clean up the test data:
+
+```python
+Member.objects.filter(email="test@example.com").delete()
+cache.delete("member_count")
+```
+
+> **Do the whole test in one shell session.** `LocMemCache` stores data in the memory of one Python process. The shell and `runserver` are different processes, so each has its own separate cache. A value cached by the shell is invisible to the web server, and the other way round.
+
+**Exercise:** Use the cached count on the home page and watch it go stale.
+
+1. In `members/utils.py`, change the timeout to `10` seconds so the effect is easy to see.
+2. In the `home` view, replace `Member.objects.count()` with `get_member_count()`, importing it from `.utils`.
+3. Open the home page and note the member count.
+4. Add a member at `<site>/members/add/`, then go back to the home page straight away. Does the count change?
+5. Wait 10 seconds and reload. When does it update?
+
+**Challenge:** make the count update immediately after a member is added. Override `form_valid` in `MemberCreateView` to delete the cached value (`cache.delete("member_count")`) before saving. Does the count update now when you add a member in the **admin** instead? Why or why not?
 
 ---
 
 ## Quick checklist
 
 - [ ] Custom middleware prints to the terminal
-- [ ] A view is protected with `@login_required`
+- [ ] A view is protected with `@login_required` and other views with `@login_required` and `@permission_required`.
 - [ ] A signal fires when a ReadingLog is created
 - [ ] A value or view is cached
