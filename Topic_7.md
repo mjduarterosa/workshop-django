@@ -22,7 +22,7 @@ In this part we use **PythonAnywhere**, a beginner-friendly host with a free tie
 
 A production setup usually has:
 
-Browser ──► Nginx ──► Gunicorn ──► Django (your views)
+Browser ---> Nginx ---> Gunicorn ---> Django (your views)
               │                        │
               │                        └─ WhiteNoise serves /static/ files
               └─ handles HTTPS, buffering, (optionally) static and media files
