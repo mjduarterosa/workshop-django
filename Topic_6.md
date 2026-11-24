@@ -147,7 +147,9 @@ request.session["page_views"] = request.session.get("page_views", 0) + 1
 
 ## B. Customizing authentication and authorization
 
-Instead of requiring a log in to the entire site, we would like to add a log in to certain views. For example:
+Django has a lot of functionality which allows the developer to authorise and authenticate users. Most of this functionality comes from the `django.contrib.auth.middleware.AuthenticationMiddleware` middleware and we don't need to change anything to use it.
+
+For example, we can add a log in to access certain views. For example:
 
 **Require login for a view:**
 
@@ -248,7 +250,9 @@ Finally, add the authentication url to the project `urls.py` not the app's urls:
 path("members/", include("django.contrib.auth.urls")),
 ```
 
-**Exercise:** Protect one view with `@login_required`, then try opening it while logged out.
+**Exercise:** Protect at least one view with `@login_required`, and another with both log-in and permission required. Add new users to the admin module and test you site's authentication behaviour with these new users. What happens if a user is a valid user but does not have permission to access a view?
+
+Try creating a better template to display when permission is not granted. You just need to add a new `403.html` template to your application.
 
 ---
 
