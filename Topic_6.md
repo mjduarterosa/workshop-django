@@ -263,17 +263,11 @@ Try creating a better template to display when permission is not granted. You ju
 
 A signal lets one part of your code announce “something just happened,” and lets other code react without the original code knowing about it. Django sends signals for many events, such as a model being saved, deleted, or a user logging in. You write a small function (a receiver) and attach it to a signal. Django calls it every time that event occurs.
 
-The flow looks like this:
+For example, when you save a new entry in the ReadingLog table (this can be done from the admin, form, shell or anywhere), Django can fire a signal when it saves the new entry (post_save signal). Your receiver will receive the signal automatically and the code that saves the ReadingLog does not need to be changed.
 
-You save a ReadingLog (admin, form, shell, anywhere)
-        ↓
-Django finishes saving it, then fires the post_save signal
-        ↓
-Your receiver function runs automatically
+This particular signal can be done using the following code:
 
-The code that saves the ReadingLog doesn’t need any changes. That’s the main appeal.
-
-Create new `members/signals.py` file with:
+First create a new signal in a `members/signals.py` file with the code below.
 
 ```python
 # members/signals.py
@@ -287,7 +281,9 @@ def log_new_reading(sender, instance, created, **kwargs):
         print(f"New reading saved: {instance}")
 ```
 
-No all we need to do is load signals from `members/apps.py`:
+The code above is a receiver function that gets the signal from ReadingLog, when this table is saved.
+
+The only extra step that is needed is to load signals from `members/apps.py`. Without loading the signal from apps Django cannot reach the signals functionality. It's a bit of a trick to make signals work.
 
 ```python
 from django.apps import AppConfig
@@ -299,11 +295,11 @@ class MembersConfig(AppConfig):
     def ready(self):
         from . import signals 
 ```
-To test it, create a new reading log entry and check the terminal. You will see the output of print(f"New reading saved: {instance}").
+**Exercise:** To test it, create a new reading log entry and check the terminal. You will see the output of print(f"New reading saved: {instance}").
 
 Instead of printing, a receiver can do useful work, such as sending a welcome email when a Member is created.
 
-### Celery (basic idea - do not run)
+### Celery (check basic idea - do not run)
 
 Celery runs slow jobs in the background so your page doesn't wait. It needs a message broker such as Redis.
 
@@ -350,13 +346,15 @@ CELERY_BROKER_URL = "redis://localhost:6379/0"
 say_hello.delay("Sam" , countdown=60)   # runs in the background
 ```
 
-**Exercise:** Add the signal above and create a ReadingLog in the admin. Watch for the message in the terminal. (Celery is optional here: it needs Redis and extra setup.)
+To summarise, celery is a task queue that runs slow or scheduled work in the background, outside the request/response cycle, so your views can respond immediately. In the Book Club project, you could use it to send a welcome email when a new member is added (send_welcome_email.delay(member.id)), to email a monthly "books read" summary to every member on a schedule (using Celery Beat), or to generate a large export of reading logs as a CSV without making the visitor wait.
+
+It needs a message broker such as Redis or RabbitMQ and a separate worker process, so we will not run celery tasks in this workshop. For more information check: https://docs.celeryq.dev/en/stable/django/first-steps-with-django.html
 
 ---
 
 ## D. Using Django's caching framework
 
-Caching stores results so Django doesn't have to compute them again. Some work is slow or repeated: a database query that counts thousands of rows, a page built from many queries, a call to an outside API. Caching saves the result in fast storage the first time. Later requests read the saved copy instead of repeating the work.
+Caching stores results so Django doesn't have to compute them again. Some work is slow or repeated: a database query that counts thousands of rows, a page built from many queries, a call to an outside API. Caching saves the result in storage the first time. Later requests read the saved copy instead of repeating the work.
 
 First request  → compute result (slow) → save it in the cache → return it
 Next requests  → found in the cache (fast) → return it
