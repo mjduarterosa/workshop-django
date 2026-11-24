@@ -103,9 +103,11 @@ A malicious site can make your browser send the cookie, but it can't read the to
 ```
 
 - `{% csrf_token %}` is required for POST forms.
-- `{{ form.as_p }}` wraps each field in a `<p>`. Alternatives: `form.as_table`, `form.as_ul`.
+- `{{ form.as_p }}` wraps each field in a `<p>`.
 
-Render fields manually for more control:
+**Exercise:**: Experiment wrapping the form as a table or url to see the difference, using `form.as_table` and `form.as_ul`.
+
+If you would like you can also render the fields manually for more control, for example:
 
 ```html
 {% for field in form %}
@@ -116,13 +118,13 @@ Render fields manually for more control:
 {% endfor %}
 ```
 
-**Task:** Render the form with `as_p`, then switch to the manual loop.
+**Exercise:** Try the manual loop and change the way the form is shown by default.
 
 ---
 
 ## D. Customizing form behaviour and appearance
 
-Change widgets, labels, and help text:
+You can also change widgets, labels, and help text in the form to help users of the site knowing what they need to do to complete the form. The following code provides some examples:
 
 ```python
 class MemberForm(forms.ModelForm):
@@ -132,7 +134,6 @@ class MemberForm(forms.ModelForm):
         labels = {"firstname": "First name"}
         help_texts = {"email": "We will never share your email."}
         widgets = {
-            "joined_date": forms.DateInput(attrs={"type": "date"}),
             "firstname": forms.TextInput(attrs={"class": "input", "placeholder": "Jane"}),
         }
 ```
