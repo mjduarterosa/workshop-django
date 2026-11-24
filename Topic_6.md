@@ -250,7 +250,8 @@ Finally, add the authentication url to the project `urls.py` not the app's urls:
 path("members/", include("django.contrib.auth.urls")),
 ```
 
-**Exercise:** Protect at least one view with `@login_required`, and another with both log-in and permission required. Add new users to the admin module and test you site's authentication behaviour with these new users. What happens if a user is a valid user but does not have permission to access a view?
+**Exercise:** Protect at least one view with `@login_required`, and another with both `@login_required` and 
+`@permission_required`. Add new users to the admin module and test you site's authentication behaviour with these new users. What happens if a user is a valid user but does not have permission to access a view?
 
 Try creating a better template to display when permission is not granted. You just need to add a new `403.html` template to your application.
 
