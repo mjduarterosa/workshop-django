@@ -31,9 +31,9 @@ Browser ──► Nginx ──► Gunicorn ──► Django (your views)
               
 ---
 
-## B. Deploying Django to a production server
+## B. Deploying Django to a production server (pythonanywhere)
 
-**1. Push your code to GitHub or GitLab**, then sign up at pythonanywhere.com.
+**1. Push your code to GitHub or GitLab**, then sign up at **pythonanywhere.com**.
 
 **2. Get your code.** Open a **Bash console** from the Dashboard:
 
@@ -42,7 +42,7 @@ git clone https://github.com/YOURNAME/YOURREPO.git
 cd YOURREPO
 ```
 
-**3. Create a virtualenv and install requirements:**
+**3. In the bash console, create a virtualenv and install requirements:**
 
 ```bash
 mkvirtualenv myenv --python=python3.12
@@ -51,7 +51,11 @@ pip install -r requirements.txt
 
 (Make sure `requirements.txt` exists: run `pip freeze > requirements.txt` locally first.)
 
-**4. Create the web app.** Web tab → **Add a new web app** → **Manual configuration** → pick your Python version.
+**4. Create the web app.** 
+
+```
+Web tab → **Add a new web app** → **Manual configuration** → pick your Python version.
+```
 
 On the Web tab, set:
 - **Source code:** `/home/YOURUSERNAME/YOURREPO`
@@ -79,11 +83,6 @@ application = get_wsgi_application()
 python manage.py migrate
 python manage.py createsuperuser
 ```
-
-**7. Click Reload** on the Web tab and visit `YOURUSERNAME.pythonanywhere.com`.
-
-**Task:** Deploy your project and open it in a browser.
-
 ---
 
 ## C. Configuring Django for production use
@@ -122,13 +121,12 @@ os.environ["DJANGO_SECRET_KEY"] = "put-a-long-random-string-here"
 ```
 
 If you need to generate a new key use the following command in the bash terminal:
+
 ```bash
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
-Reload the app after any change.
-
-**Task:** Turn `DEBUG` off, run `collectstatic`, and confirm the admin page still has its styling.
+**Click Reload** on the Web tab and visit `YOURUSERNAME.pythonanywhere.com`.
 
 ---
 
@@ -147,13 +145,13 @@ Reload the app after any change.
 
 PythonAnywhere's free tier has limits (such as restricted outbound internet access and a requirement to periodically extend the app), so check their help pages for current details.
 
-**Exercise:** Run `python manage.py check --deploy` and fix one warning.
+**Exercise:** Run `python manage.py check --deploy` and try to fix one warning.
 
 ---
 
 ## Quick checklist
 
 - [ ] Code on GitHub, `requirements.txt` present
-- [ ] App deployed and reachable in the browser
 - [ ] `DEBUG = False`, `ALLOWED_HOSTS` set, secret key kept out of git
 - [ ] Static files collected and mapped
+- [ ] App deployed and reachable in the browser
