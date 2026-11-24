@@ -151,6 +151,8 @@ Instead of requiring a log in to the entire site, we would like to add a log in 
 
 **Require login for a view:**
 
+Requiring log in to access a particular view is extremely easy. All you need is to use a python function decorator to require login, such as:
+
 ```python
 from django.contrib.auth.decorators import login_required
 
@@ -158,7 +160,7 @@ from django.contrib.auth.decorators import login_required
 def add_member(request):
     ...
 ```
-For class views include a mixin to get the same behaviour, for example:
+For class views, for example when using generic views, include a mixin to get the same behaviour, for example:
 
 ```python
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -172,7 +174,7 @@ class MemberDetailView(LoginRequiredMixin, DetailView):
     ...
 ```
 
-Set where users get sent to log in and log out:
+To tell Django where users get sent to after logging in and logging out we need to define these locations in the settings file:
 
 ```python
 # settings.py
