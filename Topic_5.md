@@ -140,7 +140,7 @@ class MemberForm(forms.ModelForm):
 
 - To make a field optional or required, set `required=False` or `True` on a regular `forms.Form` field.
 
-**Exercise:** Give `joined_date` a date picker widget and add a CSS class to one field.
+**Exercise:** Give `joined_date` a date picker widget and format the submit button with a specific CSS or bootstrap class to change its appearance.
 
 ---
 Finally, replace the link on the `members/home.html` page to see all members by the link to add a new member:
