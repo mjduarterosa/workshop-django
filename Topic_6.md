@@ -393,19 +393,17 @@ class MemberListView(LoginRequiredMixin, ListView):
 
 ### Caching a single value
 
-Caching a whole page is not always what you want. Sometimes only one value is slow to compute, such as a count or an average. For this, you store the value yourself and follow a simple pattern:
+Caching a whole page is not always what you want. Sometimes only one value is slow to compute, such as a count or an average. For this, you can store the value yourself and follow a simple pattern:
 
 1. Look in the cache.
 2. If the value is there (a **hit**), use it.
 3. If not (a **miss**), compute it, store it with an expiry time, and use it.
 
-Create `members/utils.py`:
+To do this, first create `members/utils.py` with the following code:
 
 ```python
 from django.core.cache import cache
-
 from .models import Member
-
 
 def get_member_count():
     count = cache.get("member_count")
@@ -435,7 +433,7 @@ from members.utils import get_member_count
 get_member_count()                  # 4   (miss: read from the database and cached)
 get_member_count()                  # 4   (hit: no database query)
 
-Member.objects.create(name="Test Person", email="test@example.com")
+Member.objects.create(firstname="Test Person")
 Member.objects.count()              # 5   (the database is up to date)
 get_member_count()                  # 4   (still the cached, now outdated, value)
 
@@ -452,18 +450,7 @@ Member.objects.filter(email="test@example.com").delete()
 cache.delete("member_count")
 ```
 
-> **Do the whole test in one shell session.** `LocMemCache` stores data in the memory of one Python process. The shell and `runserver` are different processes, so each has its own separate cache. A value cached by the shell is invisible to the web server, and the other way round.
-
 **Exercise:** Use the cached count on the home page and watch it go stale.
-
-1. In `members/utils.py`, change the timeout to `10` seconds so the effect is easy to see.
-2. In the `home` view, replace `Member.objects.count()` with `get_member_count()`, importing it from `.utils`.
-3. Open the home page and note the member count.
-4. Add a member at `<site>/members/add/`, then go back to the home page straight away. Does the count change?
-5. Wait 10 seconds and reload. When does it update?
-
-**Challenge:** make the count update immediately after a member is added. Override `form_valid` in `MemberCreateView` to delete the cached value (`cache.delete("member_count")`) before saving. Does the count update now when you add a member in the **admin** instead? Why or why not?
-
 ---
 
 ## Quick checklist
