@@ -450,7 +450,7 @@ Member.objects.filter(email="test@example.com").delete()
 cache.delete("member_count")
 ```
 
-**Exercise:** Use the cached count on the home page and watch it go stale.
+**Exercise:** Use the cached count on the home page and watch it go stale. This is simple only needs to update the home view to user get_member_count(), but to mitigate this effect try to add a Signal that deletes the cache every time a new element of Member is changed (either post_save or post_delete). 
 
 ---
 
