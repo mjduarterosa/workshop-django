@@ -451,6 +451,7 @@ cache.delete("member_count")
 ```
 
 **Exercise:** Use the cached count on the home page and watch it go stale.
+
 ---
 
 ## Quick checklist
