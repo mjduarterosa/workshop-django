@@ -356,9 +356,11 @@ It needs a message broker such as Redis or RabbitMQ and a separate worker proces
 
 Caching stores results so Django doesn't have to compute them again. Some work is slow or repeated: a database query that counts thousands of rows, a page built from many queries, a call to an outside API. Caching saves the result in storage the first time. Later requests read the saved copy instead of repeating the work.
 
-First request  → compute result (slow) → save it in the cache → return it
-Next requests  → found in the cache (fast) → return it
-After timeout  → cache entry expires → next request computes it again
+First request  → compute result (slow) → save it in the cache → return it.
+
+Next requests  → found in the cache (fast) → return it.
+
+After timeout  → cache entry expires → next request computes it again (slow).
 
 The tradeoff is that cached data can be stale. If a member is added during the timeout window, a cached count won’t show it until the entry expires or you delete it.
 
