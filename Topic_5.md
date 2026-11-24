@@ -47,7 +47,7 @@ def add_member(request):
     return render(request, "members/add_member.html", {"form": form})
 ```
 
-Add a URL for the form page:
+Now add the URL for the form:
 
 ```python
 path("members/add/", views.add_member, name="add_member")
