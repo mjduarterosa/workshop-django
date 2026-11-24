@@ -56,7 +56,9 @@ path("members/add/", views.add_member, name="add_member")
 
 ## B. Validating user input
 
-`is_valid()` checks every field. Add your own rules with `clean_<fieldname>()`:
+One important thing when using forms is to make sure the input from the user is validated. Django makes this validation very straightforward. Notice how in the view definition we have `is_valid()` that checks every field in the form. 
+
+You can also add your own rules by defining `clean_<fieldname>()` methods inside your form class:
 
 ```python
 class MemberForm(forms.ModelForm):
@@ -80,7 +82,11 @@ class MemberForm(forms.ModelForm):
 
 ## C. Rendering forms in templates
 
-Create new html template for the form:
+Create new html template for the form. Notice the code `{% csrf_token %}`. This bit of code is a template tag that adds a hidden security field to a form. It protects your site against CSRF (Cross-Site Request Forgery) attacks. Imagine you're logged in to the Book Club site. You then visit a malicious website that contains a hidden form pointing at your site. Your browser automatically sends your sessionid cookie with that request, so your site would think you submitted it.
+
+When Django renders your form, `{% csrf_token %}` inserts a hidden field with a random secret value. When the form is submitted, the token is sent along with the other fields. `CsrfViewMiddleware` (in your MIDDLEWARE list) compares it with a matching value stored in a cookie and rejects the request if they don't match.
+
+A malicious site can make your browser send the cookie, but it can't read the token, so it can't include the correct one in its forged form. 
 
 ```html
 {% extends "members/base.html" %}
