@@ -1,16 +1,11 @@
 # Django Workshop
-Workshop de Introdução ao Django por Maria J. Duarte Rosa.
+Introduction to Django web application development by MJ Duarte Rosa.
 
 #### Prerequisites:
 - Prior experience of Python
 - Technical English
 - Web Development basics
 - HTML + JS + CSS background
-- Basic understanding of Django Framework
-
-#### Course format:
-- 80% practice
-- 20% theory
 
 ## Structure of the workshop:
 
